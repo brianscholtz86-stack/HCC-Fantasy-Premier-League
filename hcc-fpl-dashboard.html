@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hampstead CC · FPL 2026/27</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #07111d;
+      --navy-2: #0c1a2b;
+      --panel: #102033;
+      --panel-2: #15283e;
+      --line: #23405c;
+      --cyan: #3ec8e8;
+      --cyan-dim: rgba(62, 200, 232, 0.14);
+      --cerise: #d96aa8;
+      --cerise-2: #c14f8f;
+      --ink: #e8f1f8;
+      --muted: #8aa3b8;
+      --gold: #e8c36a;
+      --silver: #c5d0da;
+      --bronze: #c4844a;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--navy); color: var(--ink); font-family: "Source Sans 3", system-ui, sans-serif; }
+    body { min-height: 100vh; background-image:
+      radial-gradient(1200px 500px at 10% -10%, rgba(62,200,232,.12), transparent 50%),
+      radial-gradient(900px 400px at 100% 0%, rgba(217,106,168,.10), transparent 45%); }
+
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 20px 60px; }
+
+    header.hero {
+      display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+      border: 1px solid var(--line); background: linear-gradient(180deg, var(--panel), var(--navy-2));
+      border-radius: 18px; padding: 22px 26px; margin-bottom: 22px;
+    }
+    header.hero img.logo { width: 88px; height: auto; filter: drop-shadow(0 0 12px rgba(62,200,232,.25)); }
+    .brand h1 {
+      font-family: Oswald, sans-serif; font-weight: 700; letter-spacing: .04em;
+      font-size: clamp(1.6rem, 3vw, 2.2rem); margin: 0 0 4px; text-transform: uppercase;
+    }
+    .brand h1 span { color: var(--cyan); }
+    .brand p { margin: 0; color: var(--muted); font-size: .95rem; }
+    .brand .chip {
+      display: inline-block; margin-top: 10px; font-size: .75rem; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--cerise); border: 1px solid rgba(217,106,168,.4);
+      padding: 4px 10px; border-radius: 999px; background: rgba(217,106,168,.08);
+    }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+    @media (max-width: 900px) { .stats { grid-template-columns: 1fr 1fr; } }
+    .stat {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px;
+    }
+    .stat .label { color: var(--muted); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+    .stat .value { font-family: Oswald, sans-serif; font-size: 1.85rem; margin-top: 4px; color: var(--cyan); line-height: 1.1; }
+    .stat .sub { color: var(--ink); margin-top: 6px; font-size: .92rem; }
+    .stat .sub em { color: var(--cerise); font-style: normal; font-weight: 600; }
+
+    h2.section {
+      font-family: Oswald, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+      font-size: 1.15rem; margin: 28px 0 12px; color: var(--ink);
+    }
+    h2.section small { color: var(--muted); font-family: "Source Sans 3", sans-serif; letter-spacing: 0; text-transform: none; font-weight: 400; margin-left: 8px; }
+
+    .periods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    @media (max-width: 980px) { .periods { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .periods { grid-template-columns: 1fr; } }
+    .period {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+      min-height: 118px; position: relative; overflow: hidden;
+    }
+    .period.active { border-color: rgba(62,200,232,.55); box-shadow: inset 0 0 0 1px rgba(62,200,232,.18); }
+    .period.season { grid-column: span 1; border-color: rgba(232,195,106,.45); background: linear-gradient(180deg, #1a2a1a00, rgba(232,195,106,.06)); }
+    .period .pname { font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+    .period .prize { position: absolute; top: 12px; right: 14px; color: var(--gold); font-weight: 700; font-size: .85rem; }
+    .period .who { font-family: Oswald, sans-serif; font-size: 1.15rem; margin-top: 10px; }
+    .period .score { font-size: 1.7rem; font-family: Oswald, sans-serif; color: var(--cyan); line-height: 1; }
+    .period .gw { color: var(--muted); font-size: .8rem; margin-top: 4px; }
+    .period.empty .who { color: var(--muted); font-family: "Source Sans 3", sans-serif; font-size: .9rem; font-weight: 400; }
+
+    .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .toolbar input {
+      background: var(--panel-2); border: 1px solid var(--line); color: var(--ink);
+      padding: 8px 12px; border-radius: 8px; min-width: 220px; font: inherit;
+    }
+    .toolbar input:focus { outline: 1px solid var(--cyan); }
+    .note { color: var(--muted); font-size: .85rem; }
+
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th, td { padding: 9px 10px; text-align: right; font-size: .92rem; }
+    th:nth-child(2), td:nth-child(2) { text-align: left; }
+    thead th {
+      position: sticky; top: 0; background: #163049; color: var(--muted);
+      font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+      cursor: pointer; user-select: none;
+    }
+    tbody tr { border-top: 1px solid rgba(35,64,92,.7); }
+    tbody tr:hover { background: rgba(62,200,232,.06); }
+    tbody tr.me { background: rgba(217,106,168,.10); }
+    .rank { font-weight: 700; color: var(--muted); }
+    .r1 .rank { color: var(--gold); }
+    .r2 .rank { color: var(--silver); }
+    .r3 .rank { color: var(--bronze); }
+    .name { font-weight: 600; }
+    .hi { color: var(--cyan); font-weight: 700; }
+    .dash { color: #3d5670; }
+
+    .split { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
+    @media (max-width: 900px) { .split { grid-template-columns: 1fr; } }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+    .hist table, .pots table { min-width: 0; }
+    .hist td, .pots td, .hist th, .pots th { text-align: left; }
+    .pots td:last-child, .pots th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; color: var(--muted); font-size: .8rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <img class="logo" src="hcc-logo.png" alt="Hampstead Cricket Club crest" />
+      <div class="brand">
+        <h1>Hampstead <span>Cricket Club</span></h1>
+        <p>Fantasy Premier League · Season 2026/27</p>
+        <span class="chip">Official league dashboard</span>
+      </div>
+    </header>
+
+    <div class="stats" id="stats"></div>
+
+    <h2 class="section">Monthly highest weekly scores <small>prize for the best single GW in each window</small></h2>
+    <div class="periods" id="periods"></div>
+
+    <h2 class="section">League table <small>after GW2 · Aug/Sept window in progress</small></h2>
+    <div class="toolbar">
+      <input id="q" type="search" placeholder="Search manager…" />
+      <span class="note">Click a column header to sort. Highlighted row is you if your name is in the sheet.</span>
+    </div>
+    <div class="table-wrap">
+      <table id="table">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="split" style="margin-top:22px">
+      <div class="card hist">
+        <h2 class="section" style="margin-top:0">League history</h2>
+        <table>
+          <thead>
+            <tr><th>Season</th><th>Champion</th><th>Total</th><th>Cup</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>2025/26</td><td>Leigh Wooldridge</td><td>2344</td><td>James Farr</td></tr>
+            <tr><td>2024/25</td><td>William Enticknap</td><td>2564</td><td>James Farr</td></tr>
+            <tr><td>2023/24</td><td>Alex Bush</td><td>2554</td><td>Alex Bush</td></tr>
+            <tr><td>2022/23</td><td>Ellie Tack</td><td>2618</td><td>Joshua Stephens</td></tr>
+            <tr><td>2021/22</td><td>Adam Hasan</td><td>2509</td><td>Adam Hasan</td></tr>
+            <tr><td>2020/21</td><td>Adam Hasan</td><td>2442</td><td>—</td></tr>
+            <tr><td>2019/20</td><td>Alex Bush</td><td>2329</td><td>—</td></tr>
+            <tr><td>2018/19</td><td>James Maloney</td><td>2361</td><td>—</td></tr>
+            <tr><td>2017/18</td><td>Nish Afsar</td><td>2240</td><td>—</td></tr>
+            <tr><td>2016/17</td><td>Ellie Tack</td><td>2374</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card pots">
+        <h2 class="section" style="margin-top:0">Prize pot</h2>
+        <table>
+          <tbody>
+            <tr><td>Aug/Sept highest weekly</td><td>£50</td></tr>
+            <tr><td>October highest weekly</td><td>£30</td></tr>
+            <tr><td>November highest weekly</td><td>£30</td></tr>
+            <tr><td>December highest weekly</td><td>£50</td></tr>
+            <tr><td>January highest weekly</td><td>£50</td></tr>
+            <tr><td>February highest weekly</td><td>£30</td></tr>
+            <tr><td>March highest weekly</td><td>£30</td></tr>
+            <tr><td>April/May highest weekly</td><td>£50</td></tr>
+            <tr><td>Highest weekly score of the year</td><td>£60</td></tr>
+            <tr><td>HCC Cup winner</td><td>£100</td></tr>
+            <tr><td>League winner</td><td>£480</td></tr>
+            <tr><td><strong>Total pot</strong></td><td><strong>£960</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      Gameweek windows: Aug/Sept GW1–5 · Oct GW6–9 · Nov GW10–12 · Dec GW13–18 · Jan GW19–23 · Feb GW24–27 · Mar GW28–30 · Apr/May GW31–38.
+      Data from the HCC FPL workbook after GW2. Update the embedded scores when new weeks land.
+    </footer>
+  </div>
+
+  <script>
+    const MANAGERS = [{"name": "Angus Whiteside", "weeks": [71, 119], "total": 190}, {"name": "Arya Etebarian", "weeks": [66, 120], "total": 186}, {"name": "Kapil Vaidyanathan", "weeks": [55, 131], "total": 186}, {"name": "siân culley", "weeks": [62, 123], "total": 185}, {"name": "richard thirkeld", "weeks": [69, 112], "total": 181}, {"name": "Kit Winder", "weeks": [70, 109], "total": 179}, {"name": "Alex Bush", "weeks": [82, 96], "total": 178}, {"name": "Andy Collier", "weeks": [56, 116], "total": 172}, {"name": "Ellie Tack", "weeks": [64, 107], "total": 171}, {"name": "Dev Nair", "weeks": [66, 103], "total": 169}, {"name": "Aayush Goel", "weeks": [70, 97], "total": 167}, {"name": "Andrew Thomas", "weeks": [69, 97], "total": 166}, {"name": "Josh Bassett", "weeks": [61, 104], "total": 165}, {"name": "Aettan Goel", "weeks": [72, 92], "total": 164}, {"name": "Karan Gour", "weeks": [65, 98], "total": 163}, {"name": "GUGENHEIM Edouard", "weeks": [53, 108], "total": 161}, {"name": "Rishi Sharma", "weeks": [52, 109], "total": 161}, {"name": "steve jarvis", "weeks": [52, 109], "total": 161}, {"name": "James Maloney", "weeks": [72, 87], "total": 159}, {"name": "Leigh Wooldridge", "weeks": [49, 109], "total": 158}, {"name": "Sebastien Fort", "weeks": [58, 99], "total": 157}, {"name": "William Enticknap", "weeks": [40, 115], "total": 155}, {"name": "Madeline Silton", "weeks": [46, 108], "total": 154}, {"name": "George Dynan", "weeks": [56, 97], "total": 153}, {"name": "Shaun Hill", "weeks": [63, 90], "total": 153}, {"name": "Alice Fox", "weeks": [50, 102], "total": 152}, {"name": "Janith A", "weeks": [74, 76], "total": 150}, {"name": "James Price Farr", "weeks": [44, 105], "total": 149}, {"name": "Joshua Stephens", "weeks": [52, 96], "total": 148}, {"name": "Justin Green", "weeks": [51, 94], "total": 145}, {"name": "Matt Kabir Floyd", "weeks": [45, 100], "total": 145}, {"name": "Faisal Sharwani", "weeks": [53, 91], "total": 144}, {"name": "Nish Afsar", "weeks": [48, 94], "total": 142}, {"name": "Arhaan Sharwani", "weeks": [41, 95], "total": 136}, {"name": "Alice Heap", "weeks": [40, 95], "total": 135}, {"name": "Sam Fraser", "weeks": [50, 85], "total": 135}, {"name": "Emma Edwards", "weeks": [35, 96], "total": 131}, {"name": "Alex Humphreys", "weeks": [45, 85], "total": 130}, {"name": "Mark Wooldridge", "weeks": [62, 64], "total": 126}, {"name": "Wayne Rowland", "weeks": [49, 74], "total": 123}, {"name": "Tallulah Allen", "weeks": [54, 64], "total": 118}, {"name": "Pip Smith", "weeks": [41, 71], "total": 112}, {"name": "Darren Jayasekera", "weeks": [34, 75], "total": 109}, {"name": "Gunner Seven", "weeks": [44, 59], "total": 103}, {"name": "Brian Scholtz", "weeks": [19, 78], "total": 97}, {"name": "Marcus Frumkin", "weeks": [52, 41], "total": 93}, {"name": "Rahul Mali", "weeks": [61, null], "total": 61}, {"name": "Tristan Allen", "weeks": [60, null], "total": 60}, {"name": "Nenad Divac", "weeks": [null, 36], "total": 36}];
+
+    const PERIODS = [
+      { name: "Aug / Sept", prize: 50, gws: [1,2,3,4,5] },
+      { name: "October", prize: 30, gws: [6,7,8,9] },
+      { name: "November", prize: 30, gws: [10,11,12] },
+      { name: "December", prize: 50, gws: [13,14,15,16,17,18] },
+      { name: "January", prize: 50, gws: [19,20,21,22,23] },
+      { name: "February", prize: 30, gws: [24,25,26,27] },
+      { name: "March", prize: 30, gws: [28,29,30] },
+      { name: "April / May", prize: 50, gws: [31,32,33,34,35,36,37,38] },
+    ];
+
+    function padWeeks(m) {
+      const w = m.weeks.slice();
+      while (w.length < 38) w.push(null);
+      return w;
+    }
+
+    function bestInRange(gws) {
+      let best = { score: -1, name: null, gw: null };
+      for (const m of MANAGERS) {
+        const w = padWeeks(m);
+        for (const g of gws) {
+          const s = w[g - 1];
+          if (s == null) continue;
+          if (s > best.score) best = { score: s, name: m.name, gw: g };
+        }
+      }
+      return best.score < 0 ? null : best;
+    }
+
+    function seasonBest() {
+      return bestInRange(Array.from({length: 38}, (_, i) => i + 1));
+    }
+
+    const currentGW = 2;
+    const leader = MANAGERS[0];
+    const gw2Best = bestInRange([2]);
+    const yearBest = seasonBest();
+
+    document.getElementById("stats").innerHTML = `
+      <div class="stat"><div class="label">Gameweek</div><div class="value">GW${currentGW}</div><div class="sub">Season underway · 36 GWs remaining</div></div>
+      <div class="stat"><div class="label">League leader</div><div class="value">${leader.total}</div><div class="sub"><em>${leader.name}</em></div></div>
+      <div class="stat"><div class="label">Highest weekly (season)</div><div class="value">${yearBest.score}</div><div class="sub"><em>${yearBest.name}</em> · GW${yearBest.gw} · £60 prize</div></div>
+      <div class="stat"><div class="label">Highest GW2</div><div class="value">${gw2Best.score}</div><div class="sub"><em>${gw2Best.name}</em></div></div>
+    `;
+
+    const periodsEl = document.getElementById("periods");
+    PERIODS.forEach(p => {
+      const best = bestInRange(p.gws);
+      const active = p.gws.includes(currentGW);
+      const el = document.createElement("div");
+      el.className = "period" + (active ? " active" : "") + (best ? "" : " empty");
+      el.innerHTML = `
+        <div class="pname">${p.name} · GW${p.gws[0]}–${p.gws[p.gws.length-1]}</div>
+        <div class="prize">£${p.prize}</div>
+        ${best
+          ? `<div class="who">${best.name}</div><div class="score">${best.score}</div><div class="gw">GW${best.gw}${active ? " · window still open" : ""}</div>`
+          : `<div class="who">Awaiting first scores</div><div class="gw">No gameweeks completed in this window</div>`}
+      `;
+      periodsEl.appendChild(el);
+    });
+    const seasonEl = document.createElement("div");
+    seasonEl.className = "period season";
+    seasonEl.innerHTML = `
+      <div class="pname">Season high weekly</div>
+      <div class="prize">£60</div>
+      <div class="who">${yearBest.name}</div>
+      <div class="score">${yearBest.score}</div>
+      <div class="gw">GW${yearBest.gw} · updates if beaten</div>
+    `;
+    periodsEl.appendChild(seasonEl);
+
+    let sortKey = "total";
+    let sortDir = -1;
+    let filter = "";
+
+    function rows() {
+      const list = MANAGERS.map((m, i) => {
+        const w = padWeeks(m);
+        return {
+          rank: i + 1,
+          name: m.name,
+          gw1: w[0],
+          gw2: w[1],
+          total: m.total,
+          best: Math.max(...w.filter(x => x != null), 0)
+        };
+      });
+      const q = filter.trim().toLowerCase();
+      let out = q ? list.filter(r => r.name.toLowerCase().includes(q)) : list.slice();
+      out.sort((a, b) => {
+        const av = a[sortKey], bv = b[sortKey];
+        if (sortKey === "name") return sortDir * String(av).localeCompare(String(bv));
+        const an = av == null ? -999 : av;
+        const bn = bv == null ? -999 : bv;
+        return sortDir * (an - bn) || a.name.localeCompare(b.name);
+      });
+      return out;
+    }
+
+    function cell(v) {
+      if (v == null) return '<span class="dash">–</span>';
+      const isHi = (v === 82 && arguments[1] === "gw1") || (v === 131 && arguments[1] === "gw2");
+      return isHi ? `<span class="hi">${v}</span>` : v;
+    }
+
+    function renderTable() {
+      const thead = document.querySelector("#table thead");
+      const cols = [
+        ["rank", "#"],
+        ["name", "Manager"],
+        ["gw1", "GW1"],
+        ["gw2", "GW2"],
+        ["best", "Best GW"],
+        ["total", "Total"]
+      ];
+      thead.innerHTML = "<tr>" + cols.map(([k,l]) =>
+        `<th data-k="${k}">${l}${sortKey===k ? (sortDir>0?" ▲":" ▼") : ""}</th>`
+      ).join("") + "</tr>";
+      thead.querySelectorAll("th").forEach(th => {
+        th.onclick = () => {
+          const k = th.dataset.k;
+          if (sortKey === k) sortDir *= -1;
+          else { sortKey = k; sortDir = k === "name" ? 1 : -1; }
+          renderTable();
+        };
+      });
+      const tb = document.querySelector("#table tbody");
+      tb.innerHTML = rows().map(r => `
+        <tr class="${r.rank<=3 ? "r"+r.rank : ""} ${r.name==="Brian Scholtz" ? "me" : ""}">
+          <td class="rank">${r.rank}</td>
+          <td class="name">${r.name}</td>
+          <td>${cell(r.gw1, "gw1")}</td>
+          <td>${cell(r.gw2, "gw2")}</td>
+          <td>${r.best || '<span class="dash">–</span>'}</td>
+          <td><strong>${r.total}</strong></td>
+        </tr>
+      `).join("");
+    }
+    document.getElementById("q").addEventListener("input", e => { filter = e.target.value; renderTable(); });
+    renderTable();
+  </script>
+</body>
+</html>
