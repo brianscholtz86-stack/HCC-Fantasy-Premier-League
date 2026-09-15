@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fantasy League Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root{
+    --bg:#0E1912;
+    --surface:#16241B;
+    --surface-alt:#1E3226;
+    --line:rgba(241,239,228,0.10);
+    --line-strong:rgba(241,239,228,0.20);
+    --gold:#D4AF37;
+    --grass:#4CAF6D;
+    --text:#F1EFE4;
+    --text-secondary:#9DAFA0;
+    --text-muted:#6E8177;
+    --red:#E2695A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:32px 24px 80px;}
+  h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:600;margin:0;letter-spacing:0.2px;}
+  header.top{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    border-bottom:2px solid var(--grass);
+    padding-bottom:18px;margin-bottom:28px;flex-wrap:wrap;gap:12px;
+  }
+  header.top .kicker{color:var(--grass);font-size:13px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;}
+  header.top h1{font-size:30px;}
+  header.top .season{color:var(--text-secondary);font-size:14px;text-align:right;}
+  section{margin-bottom:52px;}
+  section > h2{font-size:22px;margin-bottom:4px;}
+  section > .sub{color:var(--text-secondary);font-size:14px;margin-bottom:18px;}
+
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:28px;}
+  .metric{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;}
+  .metric .label{font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+  .metric .value{font-family:'Oswald',sans-serif;font-size:22px;font-weight:600;}
+  .metric .sub{font-size:13px;color:var(--text-secondary);margin-top:4px;}
+  .metric .sub.up{color:var(--grass);}
+  .metric .sub.down{color:var(--red);}
+
+  .controls{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+  input,select{
+    background:var(--surface-alt);border:1px solid var(--line-strong);color:var(--text);
+    padding:8px 12px;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;
+  }
+  input{flex:1;min-width:200px;}
+  input:focus,select:focus{outline:1px solid var(--grass);}
+
+  .table-scroll{max-height:460px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{
+    position:sticky;top:0;background:var(--surface-alt);text-align:right;padding:10px 12px;
+    color:var(--text-secondary);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;
+    border-bottom:1px solid var(--line-strong);
+  }
+  thead th:nth-child(1),thead th:nth-child(2){text-align:left;}
+  tbody td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);}
+  tbody td:nth-child(1),tbody td:nth-child(2){text-align:left;}
+  tbody tr:hover{background:var(--surface-alt);}
+  .manager{font-weight:600;}
+  .team{color:var(--text-secondary);font-size:12px;}
+  .move-up{color:var(--grass);}
+  .move-down{color:var(--red);}
+  .move-flat{color:var(--text-muted);}
+
+  .charts{display:grid;grid-template-columns:1fr;gap:32px;margin-top:32px;}
+  .chart-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;}
+  .chart-card .title{font-size:14px;color:var(--text-secondary);margin-bottom:14px;}
+  .chart-holder{position:relative;height:260px;}
+  .chart-holder.tall{height:420px;}
+
+  .prize-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
+  .prize-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;position:relative;}
+  .prize-card .month{font-family:'Oswald',sans-serif;font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+  .prize-card .winner{font-size:16px;font-weight:600;margin-bottom:2px;}
+  .prize-card .pts{font-size:13px;color:var(--text-secondary);}
+  .prize-card.pending .winner{color:var(--text-muted);font-weight:500;font-size:14px;}
+  .prize-card.leading{border-color:var(--gold);}
+  .badge{position:absolute;top:14px;right:14px;font-size:10px;color:var(--bg);background:var(--gold);padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
+
+  .hero-stat{background:linear-gradient(180deg,var(--surface) 0%,var(--surface-alt) 100%);border:1px solid var(--gold);border-radius:12px;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  .hero-stat .name{font-family:'Oswald',sans-serif;font-size:26px;font-weight:600;}
+  .hero-stat .desc{color:var(--text-secondary);font-size:14px;margin-top:4px;}
+  .hero-stat .score{font-family:'Oswald',sans-serif;font-size:48px;font-weight:700;color:var(--gold);text-align:right;}
+  .hero-stat .score .unit{display:block;font-size:13px;color:var(--text-secondary);font-weight:400;font-family:'Inter',sans-serif;}
+
+  .fame-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  @media (max-width:700px){.fame-grid{grid-template-columns:1fr;}}
+  .fame-grid table{font-size:13.5px;}
+  .fame-grid th{text-align:left;color:var(--text-secondary);font-weight:500;font-size:12px;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line-strong);}
+  .fame-grid td{padding:8px 10px;border-bottom:1px solid var(--line);}
+  .fame-grid td.num{text-align:right;font-weight:600;}
+  .fame-grid tr.current{background:var(--surface-alt);}
+  .trophy{color:var(--gold);}
+
+  footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:40px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <div class="kicker">Fantasy Premier League</div>
+      <h1>Mini-League Dashboard</h1>
+    </div>
+    <div class="season">Season 2025/26 &middot; Through Gameweek 3</div>
+  </header>
+
+  <section id="standings-section">
+    <h2>Current standings</h2>
+    <div class="sub">Search and sort to find your team &middot; scroll for the full table</div>
+
+    <div class="metrics">
+      <div class="metric"><div class="label">League leader</div><div class="value" id="m-leader-name"></div><div class="sub" id="m-leader-pts"></div></div>
+      <div class="metric"><div class="label">Biggest riser</div><div class="value" id="m-riser-name"></div><div class="sub up" id="m-riser-pts"></div></div>
+      <div class="metric"><div class="label">Biggest faller</div><div class="value" id="m-faller-name"></div><div class="sub down" id="m-faller-pts"></div></div>
+      <div class="metric"><div class="label">Top GW3 score</div><div class="value" id="m-top-name"></div><div class="sub" id="m-top-pts"></div></div>
+    </div>
+
+    <div class="controls">
+      <input id="search" type="text" placeholder="Search team or manager..." />
+      <select id="sortby">
+        <option value="rank">Sort: rank</option>
+        <option value="total">Sort: total points</option>
+        <option value="w3">Sort: GW3 score</option>
+        <option value="move">Sort: movement</option>
+        <option value="name">Sort: manager A-Z</option>
+      </select>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Team / manager</th><th>GW1</th><th>GW2</th><th>GW3</th><th>Total</th><th>Move</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="charts">
+      <div class="chart-card">
+        <div class="title">Cumulative points &mdash; top 8 managers</div>
+        <div class="chart-holder"><canvas id="lineChart" role="img" aria-label="Line chart of cumulative points across gameweeks 1 to 3 for the top 8 managers"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="title">Gameweek 3 scores &mdash; top 15</div>
+        <div class="chart-holder tall"><canvas id="barChart" role="img" aria-label="Horizontal bar chart of top 15 gameweek 3 scores"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="prizes-section">
+    <h2>Monthly prizes &mdash; highest weekly score</h2>
+    <div class="sub">Awarded for the single highest gameweek score within each month &middot; updates as the season goes on</div>
+    <div class="prize-grid" id="prize-grid"></div>
+  </section>
+
+  <section id="year-prize-section">
+    <h2>Highest weekly score of the year</h2>
+    <div class="sub">The single best gameweek score across the whole season</div>
+    <div class="hero-stat">
+      <div>
+        <div class="name" id="year-name"></div>
+        <div class="desc" id="year-desc"></div>
+      </div>
+      <div class="score"><span id="year-score"></span><span class="unit">points &middot; in progress</span></div>
+    </div>
+  </section>
+
+  <section id="fame-section">
+    <h2>Hall of fame</h2>
+    <div class="sub">Past champions of the league and the cup</div>
+    <div class="fame-grid">
+      <div>
+        <h3 style="font-size:15px;margin-bottom:10px;color:var(--text-secondary);">League champions</h3>
+        <table>
+          <thead><tr><th>Season</th><th>Champion</th><th style="text-align:right;">Final total</th></tr></thead>
+          <tbody>
+            <tr><td>2016/17</td><td>Ellie Tack</td><td class="num">2374</td></tr>
+            <tr><td>2017/18</td><td>Nish Afsar</td><td class="num">2240</td></tr>
+            <tr><td>2018/19</td><td>James Maloney</td><td class="num">2361</td></tr>
+            <tr><td>2019/20</td><td>Alex Bush</td><td class="num">2329</td></tr>
+            <tr><td>2020/21</td><td>Adam Hasan</td><td class="num">2442</td></tr>
+            <tr><td>2021/22</td><td>Adam Hasan</td><td class="num">2509</td></tr>
+            <tr><td>2022/23</td><td>Ellie Tack</td><td class="num">2618</td></tr>
+            <tr><td>2023/24</td><td>Alex Bush</td><td class="num">2554</td></tr>
+            <tr><td>2024/25</td><td>William Enticknap</td><td class="num">2564</td></tr>
+            <tr class="current"><td>2025/26</td><td>Leigh Wooldridge <span class="trophy" title="Defending champion">&#9733;</span></td><td class="num">2344</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="font-size:15px;margin-bottom:10px;color:var(--text-secondary);">Cup champions</h3>
+        <table>
+          <thead><tr><th>Year</th><th>Champion</th></tr></thead>
+          <tbody>
+            <tr><td>2022</td><td>Adam Hasan</td></tr>
+            <tr><td>2023</td><td>Joshua Stephens</td></tr>
+            <tr><td>2024</td><td>Alex Bush</td></tr>
+            <tr><td>2025</td><td>James Farr</td></tr>
+            <tr class="current"><td>2026</td><td>James Farr <span class="trophy" title="Defending champion">&#9733;</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer>Fantasy league dashboard &middot; last updated through Gameweek 3</footer>
+</div>
+
+<script>
+const raw = [
+["Not Tzoday FC","Kit Winder",70,109,66,245],
+["Kapsannovasaurus_Rex","Kapil Vaidyanathan",55,131,57,243],
+["The ball boys","Arya Etebarian",66,120,56,242],
+["for wirtz","siân culley",62,123,55,240],
+["The Dominik Effect","Aettan Goel",72,92,67,231],
+["Gyok won","Josh Bassett",61,104,66,231],
+["Los Porros Hermanos","Dev Nair",66,103,62,231],
+["PiratesofthePavilion","Aayush Goel",70,97,63,230],
+["Mileys XI","richard thirkeld",69,112,49,230],
+["Ødegaardians Galaxy","Angus Whiteside",71,119,37,227],
+["Inter Row Z","Alex Bush",82,96,49,227],
+["Drop Djed Gorgeous","Andy Collier",56,116,49,221],
+["diego 4naan","Karan Gour",65,98,55,218],
+["winnersaregrinners","Shaun Hill",63,90,63,216],
+["Madeline's Team","Madeline Silton",46,108,53,215],
+["Ellie's Team","Ellie Tack",64,107,41,212],
+["Leighthal Weapon","Leigh Wooldridge",49,109,54,212],
+["BOBBY AFC","GUGENHEIM Edouard",53,108,46,208],
+["The Broncbull Reds","steve jarvis",52,109,47,208],
+["Championship Hammers","George Dynan",56,97,54,207],
+["Rutter Woke Nonsense","Andrew Thomas",69,97,39,205],
+["William's Wanderers","William Enticknap",40,115,50,205],
+["Alice in Wonhaaland","Alice Fox",50,102,51,203],
+["il Divino Codino","Faisal Sharwani",53,91,59,203],
+["Al Mattihad","Matt Kabir Floyd",45,100,56,201],
+["50 shades of O'Shea","James Maloney",72,87,42,201],
+["Stubbed Mitoma","Janith A",74,76,55,201],
+["Mind Over Mata","James Price Farr",44,105,47,196],
+["Sesko Meal Deal","Rishi Sharma",52,109,43,196],
+["The Heapsters","Alice Heap",40,95,58,193],
+["cobra","Sebastien Fort",58,99,40,193],
+["MightyO's","Pip Smith",41,71,77,189],
+["Josh's Janners","Joshua Stephens",52,96,36,184],
+["MoMane MoProblems","Nish Afsar",48,94,50,184],
+["FCSJW","Arhaan Sharwani",41,95,50,182],
+["Spysaints","Brian Scholtz",19,78,84,181],
+["Greeny's Goofs","Justin Green",51,94,33,178],
+["Haaland & da bois","Sam Fraser",50,85,39,177],
+["For Beto","Emma Edwards",35,96,42,175],
+["Everybody Wirtz","Wayne Rowland",49,74,48,171],
+["Gunner's Team","Gunner Seven",44,59,62,165],
+["Pending Moderation","Mark Wooldridge",62,64,45,159],
+["Tallulah's Team","Tallulah Allen",54,64,41,158],
+["BoomSakaLaca","Marcus Frumkin",52,41,35,143],
+["Pending Moderation","Nenad Divac",null,null,52,102]
+];
+const data = raw.map(r=>({team:r[0],manager:r[1],w1:r[2],w2:r[3],w3:r[4],total:r[5]}));
+data.sort((a,b)=>b.total-a.total);
+data.forEach((d,i)=>{ d.rank = (i>0 && data[i-1].total===d.total) ? data[i-1].rank : i+1; });
+
+const withPrev = data.filter(d=>d.w1!==null).slice();
+withPrev.sort((a,b)=>(b.total-b.w3)-(a.total-a.w3));
+withPrev.forEach((d,i)=>{ d.prevRank = (i>0 && (withPrev[i-1].total-withPrev[i-1].w3)===(d.total-d.w3)) ? withPrev[i-1].prevRank : i+1; });
+data.forEach(d=>{ d.move = d.prevRank!==undefined ? d.prevRank-d.rank : null; });
+
+const leader = data[0];
+document.getElementById('m-leader-name').textContent = leader.manager;
+document.getElementById('m-leader-pts').textContent = leader.team+' \u2014 '+leader.total+' pts';
+
+const withMove = data.filter(d=>d.move!==null);
+const riser = withMove.reduce((a,b)=>b.move>a.move?b:a);
+const faller = withMove.reduce((a,b)=>b.move<a.move?b:a);
+document.getElementById('m-riser-name').textContent = riser.manager;
+document.getElementById('m-riser-pts').textContent = 'Up '+riser.move+' place'+(riser.move===1?'':'s');
+document.getElementById('m-faller-name').textContent = faller.manager;
+document.getElementById('m-faller-pts').textContent = 'Down '+Math.abs(faller.move)+' place'+(Math.abs(faller.move)===1?'':'s');
+
+const topGw3 = data.reduce((a,b)=>b.w3>a.w3?b:a);
+document.getElementById('m-top-name').textContent = topGw3.manager;
+document.getElementById('m-top-pts').textContent = topGw3.team+' \u2014 '+topGw3.w3+' pts';
+
+function moveLabel(d){
+  if(d.move===null) return '<span class="move-flat">new</span>';
+  if(d.move===0) return '<span class="move-flat">&mdash;</span>';
+  if(d.move>0) return '<span class="move-up">&#9650; '+d.move+'</span>';
+  return '<span class="move-down">&#9660; '+Math.abs(d.move)+'</span>';
+}
+
+function renderTable(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const sortby = document.getElementById('sortby').value;
+  let rows = data.filter(d=>d.team.toLowerCase().includes(q)||d.manager.toLowerCase().includes(q));
+  if(sortby==='total') rows.sort((a,b)=>b.total-a.total);
+  else if(sortby==='w3') rows.sort((a,b)=>b.w3-a.w3);
+  else if(sortby==='move') rows.sort((a,b)=>(b.move??-99)-(a.move??-99));
+  else if(sortby==='name') rows.sort((a,b)=>a.manager.localeCompare(b.manager));
+  else rows.sort((a,b)=>a.rank-b.rank);
+
+  document.getElementById('tbody').innerHTML = rows.map(d=>
+    '<tr><td>'+d.rank+'</td>'+
+    '<td><span class="manager">'+d.manager+'</span><br/><span class="team">'+d.team+'</span></td>'+
+    '<td>'+(d.w1??'\u2013')+'</td><td>'+(d.w2??'\u2013')+'</td><td>'+d.w3+'</td>'+
+    '<td style="font-weight:600;">'+d.total+'</td><td>'+moveLabel(d)+'</td></tr>'
+  ).join('');
+}
+document.getElementById('search').addEventListener('input', renderTable);
+document.getElementById('sortby').addEventListener('change', renderTable);
+renderTable();
+
+const cove = ['#D4AF37','#4CAF6D','#5B8FE0','#E2695A','#C77DD1','#E0A93E','#5FC7C1','#B0C24A'];
+const top8 = data.slice(0,8);
+new Chart(document.getElementById('lineChart'), {
+  type:'line',
+  data:{
+    labels:['GW1','GW2','GW3'],
+    datasets: top8.map((d,i)=>({label:d.manager,data:[d.w1,d.w1+d.w2,d.total],borderColor:cove[i],backgroundColor:cove[i],borderWidth:2,pointRadius:3,fill:false,tension:0}))
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'bottom',labels:{color:'#9DAFA0',boxWidth:10,font:{size:11}}}},
+    scales:{
+      y:{grid:{color:'rgba(241,239,228,0.08)'},ticks:{color:'#9DAFA0'}},
+      x:{grid:{display:false},ticks:{color:'#9DAFA0'}}
+    }
+  }
+});
+
+const gw3sorted = data.slice().sort((a,b)=>b.w3-a.w3).slice(0,15);
+new Chart(document.getElementById('barChart'), {
+  type:'bar',
+  data:{labels:gw3sorted.map(d=>d.manager),datasets:[{data:gw3sorted.map(d=>d.w3),backgroundColor:'#4CAF6D',borderRadius:4,maxBarThickness:20}]},
+  options:{
+    indexAxis:'y',responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{color:'rgba(241,239,228,0.08)'},ticks:{color:'#9DAFA0'}},
+      y:{grid:{display:false},ticks:{color:'#9DAFA0'}}
+    }
+  }
+});
+
+// Monthly prizes: only weeks played so far fall in Aug/Sept.
+let bestAugSept = null;
+data.forEach(d=>{
+  [['GW1',d.w1],['GW2',d.w2],['GW3',d.w3]].forEach(([gw,score])=>{
+    if(score!=null && (bestAugSept===null || score>bestAugSept.score)){
+      bestAugSept = {manager:d.manager, team:d.team, score, gw};
+    }
+  });
+});
+
+const months = [
+  {label:'Aug / Sept', data:bestAugSept, leading:true},
+  {label:'October', data:null},
+  {label:'November', data:null},
+  {label:'December', data:null},
+  {label:'January', data:null},
+  {label:'February', data:null},
+  {label:'March', data:null},
+  {label:'April / May', data:null}
+];
+
+document.getElementById('prize-grid').innerHTML = months.map(m=>{
+  if(m.data){
+    return '<div class="prize-card leading">'+
+      (m.leading?'<div class="badge">In progress</div>':'')+
+      '<div class="month">'+m.label+'</div>'+
+      '<div class="winner">'+m.data.manager+'</div>'+
+      '<div class="pts">'+m.data.team+' \u2014 '+m.data.score+' pts ('+m.data.gw+')</div>'+
+      '</div>';
+  }
+  return '<div class="prize-card pending"><div class="month">'+m.label+'</div><div class="winner">Season in progress</div><div class="pts">To be decided</div></div>';
+}).join('');
+
+document.getElementById('year-name').textContent = bestAugSept.manager;
+document.getElementById('year-desc').textContent = bestAugSept.team+' \u2014 '+bestAugSept.gw+' \u2014 leading so far, season in progress';
+document.getElementById('year-score').textContent = bestAugSept.score;
+</script>
+</body>
+</html>
