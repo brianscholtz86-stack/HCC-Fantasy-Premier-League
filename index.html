@@ -3,24 +3,25 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fantasy League Dashboard</title>
+<title>HCC Fantasy League Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
   :root{
-    --bg:#0E1912;
-    --surface:#16241B;
-    --surface-alt:#1E3226;
+    --bg:#0D1524;
+    --surface:#151F35;
+    --surface-alt:#1C2A48;
     --line:rgba(241,239,228,0.10);
     --line-strong:rgba(241,239,228,0.20);
-    --gold:#D4AF37;
-    --grass:#4CAF6D;
+    --rose:#B5556B;
+    --rose-bright:#D97B92;
+    --blue:#6FB8D9;
     --text:#F1EFE4;
-    --text-secondary:#9DAFA0;
-    --text-muted:#6E8177;
-    --red:#E2695A;
+    --text-secondary:#9FB0C8;
+    --text-muted:#63718A;
+    --down:#D9724A;
   }
   *{box-sizing:border-box;}
   body{
@@ -34,11 +35,13 @@
   h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:600;margin:0;letter-spacing:0.2px;}
   header.top{
     display:flex;justify-content:space-between;align-items:flex-end;
-    border-bottom:2px solid var(--grass);
-    padding-bottom:18px;margin-bottom:28px;flex-wrap:wrap;gap:12px;
+    border-bottom:2px solid var(--rose);
+    padding-bottom:18px;margin-bottom:28px;flex-wrap:wrap;gap:14px;
   }
-  header.top .kicker{color:var(--grass);font-size:13px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;}
-  header.top h1{font-size:30px;}
+  header.top .brand{display:flex;align-items:center;gap:14px;}
+  header.top .brand img{height:56px;width:56px;object-fit:contain;}
+  header.top .kicker{color:var(--blue);font-size:13px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;}
+  header.top h1{font-size:28px;}
   header.top .season{color:var(--text-secondary);font-size:14px;text-align:right;}
   section{margin-bottom:52px;}
   section > h2{font-size:22px;margin-bottom:4px;}
@@ -49,8 +52,8 @@
   .metric .label{font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
   .metric .value{font-family:'Oswald',sans-serif;font-size:22px;font-weight:600;}
   .metric .sub{font-size:13px;color:var(--text-secondary);margin-top:4px;}
-  .metric .sub.up{color:var(--grass);}
-  .metric .sub.down{color:var(--red);}
+  .metric .sub.up{color:var(--blue);}
+  .metric .sub.down{color:var(--down);}
 
   .controls{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
   input,select{
@@ -58,7 +61,7 @@
     padding:8px 12px;border-radius:8px;font-family:'Inter',sans-serif;font-size:14px;
   }
   input{flex:1;min-width:200px;}
-  input:focus,select:focus{outline:1px solid var(--grass);}
+  input:focus,select:focus{outline:1px solid var(--blue);}
 
   .table-scroll{max-height:460px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;}
   table{width:100%;border-collapse:collapse;font-size:13.5px;}
@@ -73,8 +76,8 @@
   tbody tr:hover{background:var(--surface-alt);}
   .manager{font-weight:600;}
   .team{color:var(--text-secondary);font-size:12px;}
-  .move-up{color:var(--grass);}
-  .move-down{color:var(--red);}
+  .move-up{color:var(--blue);}
+  .move-down{color:var(--down);}
   .move-flat{color:var(--text-muted);}
 
   .charts{display:grid;grid-template-columns:1fr;gap:32px;margin-top:32px;}
@@ -85,27 +88,27 @@
 
   .prize-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}
   .prize-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;position:relative;}
-  .prize-card .month{font-family:'Oswald',sans-serif;font-size:13px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+  .prize-card .month{font-family:'Oswald',sans-serif;font-size:13px;color:var(--rose-bright);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
   .prize-card .winner{font-size:16px;font-weight:600;margin-bottom:2px;}
   .prize-card .pts{font-size:13px;color:var(--text-secondary);}
   .prize-card.pending .winner{color:var(--text-muted);font-weight:500;font-size:14px;}
-  .prize-card.leading{border-color:var(--gold);}
-  .badge{position:absolute;top:14px;right:14px;font-size:10px;color:var(--bg);background:var(--gold);padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
+  .prize-card.leading{border-color:var(--rose);}
+  .badge{position:absolute;top:14px;right:14px;font-size:10px;color:var(--bg);background:var(--rose);padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600;}
 
-  .hero-stat{background:linear-gradient(180deg,var(--surface) 0%,var(--surface-alt) 100%);border:1px solid var(--gold);border-radius:12px;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  .hero-stat{background:linear-gradient(180deg,var(--surface) 0%,var(--surface-alt) 100%);border:1px solid var(--rose);border-radius:12px;padding:28px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
   .hero-stat .name{font-family:'Oswald',sans-serif;font-size:26px;font-weight:600;}
   .hero-stat .desc{color:var(--text-secondary);font-size:14px;margin-top:4px;}
-  .hero-stat .score{font-family:'Oswald',sans-serif;font-size:48px;font-weight:700;color:var(--gold);text-align:right;}
+  .hero-stat .score{font-family:'Oswald',sans-serif;font-size:48px;font-weight:700;color:var(--rose-bright);text-align:right;}
   .hero-stat .score .unit{display:block;font-size:13px;color:var(--text-secondary);font-weight:400;font-family:'Inter',sans-serif;}
 
   .fame-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
-  @media (max-width:700px){.fame-grid{grid-template-columns:1fr;}}
+  @media (max-width:700px){.fame-grid{grid-template-columns:1fr;} header.top{flex-direction:column;align-items:flex-start;} header.top .season{text-align:left;}}
   .fame-grid table{font-size:13.5px;}
   .fame-grid th{text-align:left;color:var(--text-secondary);font-weight:500;font-size:12px;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--line-strong);}
   .fame-grid td{padding:8px 10px;border-bottom:1px solid var(--line);}
   .fame-grid td.num{text-align:right;font-weight:600;}
   .fame-grid tr.current{background:var(--surface-alt);}
-  .trophy{color:var(--gold);}
+  .trophy{color:var(--rose-bright);}
 
   footer{color:var(--text-muted);font-size:12px;text-align:center;margin-top:40px;}
 </style>
@@ -114,11 +117,14 @@
 <div class="wrap">
 
   <header class="top">
-    <div>
-      <div class="kicker">Fantasy Premier League</div>
-      <h1>Mini-League Dashboard</h1>
+    <div class="brand">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARQAAAEHCAMAAABY7El+AAADAFBMVEUAAAD///8HJT2sUFasXmS1UWO6TWWsUmaiVmesXG2tTWW0RmS4TmqyTmqmT2ajWm2pZHa3SmquTmq0Um6qTmq4VnKyVnLBTXGySmquSmq3Tm7DVXmyTm62UnKmTmq/W3usUm6uVnKzW3asW3WtaX+8Rm20Rmu3Sm6ySm64TXKqSmq7UnWuTm6mSmqyUXKqTm67V3q2VnauUnKyVnahT2qlU26qVnK0XXu7ZYKtYHqkXHSdWnCkY3m4combZXeuRWquSm63UXemTm6pUnKuVnalVnKZUmyocYWqSm6tTnKyUXa0VXquUnapVnasWnyoUHesVHp6UWirn7Z+eYw2OlYSIkomLkMWJkIQIDoJIkYOIj8LJkoWKkYKIT4WKkIbM1ACIkYDJUsGIkISKkYCIkIGJkYGIj4KJkIOKkYOJj4SLkoSKkISJjoWLkYWKj4aLkMjNkoCJkYCHDUKIjkfOlRMXGsCIj4EK0sGJkIGIjoKKkYMLUoKJj4OKkIOJjoSLkYVMkoSKj4WLkITJjYcNUsXKjolP1QcLj0jNUQrPUw1RFECJkICIjoGJj4KKkIOLkYcNEYkO0wjMj01SVgrOkUrN0BEUl0CJj4FKkQKJjoNKj4NJTYVN08SLkISKjoWLj4cMkIsRFU5UWEGJjoJLkYyrvoOLkIVMkUdOk0zQEgCJjoFJDYNNEoSLj4VKjYaLDYFKj0kp+sKLkEnsPcWLjotQ04crvIdMz0QsvQaq+UjtO0lq+IttOsyqNoaQlJTsdgkO0Uav/kctewip9Y0wPE3s+NCr9dJt+EOr+UUtewZq9wcvO0cs+QmyPslvO8ltOMordYtst4LLDcPMDtOwuhavN1dscsCKjYTve4TteMswOg0sddP1fpHrsxgxeMdO0QJw/MJu+gSsNcbu+MatdwardQgxu4kvOM6t9dxzOJqvtOKzt6o5PIMttolttctvdwvttI5sMs/wt9JvdZXutByo64UwuInsslGuc4Qtc8dvdRTxtU5v8xFs75Ww8T///8WAPCFAAABAHRSTlP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AU/cHJQAAAAlwSFlzAAAOxAAADsQBlSsOGwAASWdJREFUeJztvWlwXMeV5/urvVC4taMK+0psXERSIkVxEUlZdqsVmn49b3pm2u7okKixpZBh0aTY4QK0tHaLElCOoUhRhj322CL1XjzJMW+WnhmNRm27RVEiSK3cSYDYd1ShUNutfXsfLgAWQJAEQILuF8H/BxJ1K/Nm5r8yT2aec/KkLMNtzIb8T12Bf464TcocuE3KHLhNyhy4TcocuE3KHLhNyhy4TcocuE3KHLhNyhy4TcocuE3KHLhNyhy4TcocuE3KHLhNyhy4Tcoc+GdNypYtf5py/zmTcq8/8qdh5Z8zKSRHow/8Kcr9E5Jy7wP3XidFOC86uOGW1GUmZH8qbf4DaXdUZfr0mmkeOgeGwshR6dOWkVUT105/s6C8JaVcgS3RpDuh8xddO1XA5Falz6juOQHcKyYTHfIHProVtbulPeWe8Bnpj+906EImmT/3/HUyrNN/s+q8KUeUmf0Wb54qKiost6Kv3MqeUppQlhRqZOnBWJ45v8fQUay+Xg6Fq0LvZVmGpMka+Jxt1j7fPSeWvqK3kJR1iTJLMNKptCnzVZ8Bd2SuS8rnxYowdE19/ISqQP6S1lHCrSNly1D+51CjJecb6YHce+q6mYrDxlmfT/+5+Bnbk6J6LF72+VLUk1tIypYuWyFwafrB9kTu9XN9vm5gxuejm3P6xDshltEkDUsmDpeUlC1isHAwXJn4Bu7NMRR+OOPLqNx4lWzZ6NJWd2Z/PlZjLA3KZBlX2By038y6ZmNJSRG80bhYNJTKX+Nx6dQ9M77bEtV9No9X+FbN6k+TXW1NZrxwySaiJV3RRsVAWB5YqVvVGcnxF13K/mpzf2p+EqFgZPtcj4MppfUm1HBuLGlPOWIyezPFHwFbM/kfAQ9KI2hzShbPC87vHRGDBmBrTneBcHn81Zjj9Uu3jlvi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" alt="HCC crest logo" />
+      <div>
+        <div class="kicker">HCC Fantasy Premier League</div>
+        <h1>Mini-League Dashboard</h1>
+      </div>
     </div>
-    <div class="season">Season 2025/26 &middot; Through Gameweek 3</div>
+    <div class="season">Season 2025/26 &middot; Through Gameweek 4</div>
   </header>
 
   <section id="standings-section">
@@ -129,7 +135,7 @@
       <div class="metric"><div class="label">League leader</div><div class="value" id="m-leader-name"></div><div class="sub" id="m-leader-pts"></div></div>
       <div class="metric"><div class="label">Biggest riser</div><div class="value" id="m-riser-name"></div><div class="sub up" id="m-riser-pts"></div></div>
       <div class="metric"><div class="label">Biggest faller</div><div class="value" id="m-faller-name"></div><div class="sub down" id="m-faller-pts"></div></div>
-      <div class="metric"><div class="label">Top GW3 score</div><div class="value" id="m-top-name"></div><div class="sub" id="m-top-pts"></div></div>
+      <div class="metric"><div class="label">Top GW4 score</div><div class="value" id="m-top-name"></div><div class="sub" id="m-top-pts"></div></div>
     </div>
 
     <div class="controls">
@@ -137,7 +143,7 @@
       <select id="sortby">
         <option value="rank">Sort: rank</option>
         <option value="total">Sort: total points</option>
-        <option value="w3">Sort: GW3 score</option>
+        <option value="w4">Sort: GW4 score</option>
         <option value="move">Sort: movement</option>
         <option value="name">Sort: manager A-Z</option>
       </select>
@@ -147,7 +153,7 @@
       <table>
         <thead>
           <tr>
-            <th>#</th><th>Team / manager</th><th>GW1</th><th>GW2</th><th>GW3</th><th>Total</th><th>Move</th>
+            <th>#</th><th>Team / manager</th><th>GW1</th><th>GW2</th><th>GW3</th><th>GW4</th><th>Total</th><th>Move</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -157,11 +163,11 @@
     <div class="charts">
       <div class="chart-card">
         <div class="title">Cumulative points &mdash; top 8 managers</div>
-        <div class="chart-holder"><canvas id="lineChart" role="img" aria-label="Line chart of cumulative points across gameweeks 1 to 3 for the top 8 managers"></canvas></div>
+        <div class="chart-holder"><canvas id="lineChart" role="img" aria-label="Line chart of cumulative points across gameweeks 1 to 4 for the top 8 managers"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="title">Gameweek 3 scores &mdash; top 15</div>
-        <div class="chart-holder tall"><canvas id="barChart" role="img" aria-label="Horizontal bar chart of top 15 gameweek 3 scores"></canvas></div>
+        <div class="title">Gameweek 4 scores &mdash; top 15</div>
+        <div class="chart-holder tall"><canvas id="barChart" role="img" aria-label="Horizontal bar chart of top 15 gameweek 4 scores"></canvas></div>
       </div>
     </div>
   </section>
@@ -222,64 +228,19 @@
     </div>
   </section>
 
-  <footer>Fantasy league dashboard &middot; last updated through Gameweek 3</footer>
+  <footer>HCC Fantasy League dashboard &middot; last updated through Gameweek 4</footer>
 </div>
 
 <script>
-const raw = [
-["Not Tzoday FC","Kit Winder",70,109,66,245],
-["Kapsannovasaurus_Rex","Kapil Vaidyanathan",55,131,57,243],
-["The ball boys","Arya Etebarian",66,120,56,242],
-["for wirtz","siân culley",62,123,55,240],
-["The Dominik Effect","Aettan Goel",72,92,67,231],
-["Gyok won","Josh Bassett",61,104,66,231],
-["Los Porros Hermanos","Dev Nair",66,103,62,231],
-["PiratesofthePavilion","Aayush Goel",70,97,63,230],
-["Mileys XI","richard thirkeld",69,112,49,230],
-["Ødegaardians Galaxy","Angus Whiteside",71,119,37,227],
-["Inter Row Z","Alex Bush",82,96,49,227],
-["Drop Djed Gorgeous","Andy Collier",56,116,49,221],
-["diego 4naan","Karan Gour",65,98,55,218],
-["winnersaregrinners","Shaun Hill",63,90,63,216],
-["Madeline's Team","Madeline Silton",46,108,53,215],
-["Ellie's Team","Ellie Tack",64,107,41,212],
-["Leighthal Weapon","Leigh Wooldridge",49,109,54,212],
-["BOBBY AFC","GUGENHEIM Edouard",53,108,46,208],
-["The Broncbull Reds","steve jarvis",52,109,47,208],
-["Championship Hammers","George Dynan",56,97,54,207],
-["Rutter Woke Nonsense","Andrew Thomas",69,97,39,205],
-["William's Wanderers","William Enticknap",40,115,50,205],
-["Alice in Wonhaaland","Alice Fox",50,102,51,203],
-["il Divino Codino","Faisal Sharwani",53,91,59,203],
-["Al Mattihad","Matt Kabir Floyd",45,100,56,201],
-["50 shades of O'Shea","James Maloney",72,87,42,201],
-["Stubbed Mitoma","Janith A",74,76,55,201],
-["Mind Over Mata","James Price Farr",44,105,47,196],
-["Sesko Meal Deal","Rishi Sharma",52,109,43,196],
-["The Heapsters","Alice Heap",40,95,58,193],
-["cobra","Sebastien Fort",58,99,40,193],
-["MightyO's","Pip Smith",41,71,77,189],
-["Josh's Janners","Joshua Stephens",52,96,36,184],
-["MoMane MoProblems","Nish Afsar",48,94,50,184],
-["FCSJW","Arhaan Sharwani",41,95,50,182],
-["Spysaints","Brian Scholtz",19,78,84,181],
-["Greeny's Goofs","Justin Green",51,94,33,178],
-["Haaland & da bois","Sam Fraser",50,85,39,177],
-["For Beto","Emma Edwards",35,96,42,175],
-["Everybody Wirtz","Wayne Rowland",49,74,48,171],
-["Gunner's Team","Gunner Seven",44,59,62,165],
-["Pending Moderation","Mark Wooldridge",62,64,45,159],
-["Tallulah's Team","Tallulah Allen",54,64,41,158],
-["BoomSakaLaca","Marcus Frumkin",52,41,35,143],
-["Pending Moderation","Nenad Divac",null,null,52,102]
-];
-const data = raw.map(r=>({team:r[0],manager:r[1],w1:r[2],w2:r[3],w3:r[4],total:r[5]}));
+const raw = [{"team": "Not Tzoday FC", "manager": "Kit Winder", "w1": 70, "w2": 109, "w3": 66, "w4": 94, "prevTotal": 245, "total": 335}, {"team": "Kapsannovasaurus_Rex", "manager": "Kapil Vaidyanathan", "w1": 55, "w2": 131, "w3": 57, "w4": 84, "prevTotal": 243, "total": 327}, {"team": "The ball boys", "manager": "Arya Etebarian", "w1": 66, "w2": 120, "w3": 56, "w4": 93, "prevTotal": 242, "total": 335}, {"team": "for wirtz", "manager": "siân culley", "w1": 62, "w2": 123, "w3": 55, "w4": 88, "prevTotal": 240, "total": 328}, {"team": "The Dominik Effect", "manager": "Aettan Goel", "w1": 72, "w2": 92, "w3": 67, "w4": 60, "prevTotal": 231, "total": 291}, {"team": "Gyok won", "manager": "Josh Bassett", "w1": 61, "w2": 104, "w3": 66, "w4": 76, "prevTotal": 231, "total": 307}, {"team": "Los Porros Hermanos", "manager": "Dev Nair", "w1": 66, "w2": 103, "w3": 62, "w4": 70, "prevTotal": 231, "total": 301}, {"team": "PiratesofthePavilion", "manager": "Aayush Goel", "w1": 70, "w2": 97, "w3": 63, "w4": 83, "prevTotal": 230, "total": 313}, {"team": "Mileys XI", "manager": "richard thirkeld", "w1": 69, "w2": 112, "w3": 49, "w4": 94, "prevTotal": 230, "total": 324}, {"team": "Ødegaardians Galaxy", "manager": "Angus Whiteside", "w1": 71, "w2": 119, "w3": 37, "w4": 98, "prevTotal": 227, "total": 325}, {"team": "Inter Row Z", "manager": "Alex Bush", "w1": 82, "w2": 96, "w3": 49, "w4": 70, "prevTotal": 227, "total": 297}, {"team": "Drop Djed Gorgeous", "manager": "Andy Collier", "w1": 56, "w2": 116, "w3": 49, "w4": 95, "prevTotal": 221, "total": 316}, {"team": "diego 4naan", "manager": "Karan Gour", "w1": 65, "w2": 98, "w3": 55, "w4": 94, "prevTotal": 218, "total": 312}, {"team": "winnersaregrinners", "manager": "Shaun Hill", "w1": 63, "w2": 90, "w3": 63, "w4": 86, "prevTotal": 216, "total": 302}, {"team": "Madeline's Team", "manager": "Madeline Silton", "w1": 46, "w2": 108, "w3": 53, "w4": 79, "prevTotal": 215, "total": 294}, {"team": "Ellie's Team", "manager": "Ellie Tack", "w1": 64, "w2": 107, "w3": 41, "w4": 90, "prevTotal": 212, "total": 302}, {"team": "Leighthal Weapon", "manager": "Leigh Wooldridge", "w1": 49, "w2": 109, "w3": 54, "w4": 81, "prevTotal": 212, "total": 293}, {"team": "BOBBY AFC", "manager": "GUGENHEIM Edouard", "w1": 53, "w2": 108, "w3": 46, "w4": 60, "prevTotal": 208, "total": 268}, {"team": "The Broncbull Reds", "manager": "steve jarvis", "w1": 52, "w2": 109, "w3": 47, "w4": 64, "prevTotal": 208, "total": 272}, {"team": "Championship Hammers", "manager": "George Dynan", "w1": 56, "w2": 97, "w3": 54, "w4": 76, "prevTotal": 207, "total": 283}, {"team": "Rutter Woke Nonsense", "manager": "Andrew Thomas", "w1": 69, "w2": 97, "w3": 39, "w4": 60, "prevTotal": 205, "total": 257}, {"team": "William's Wanderers", "manager": "William Enticknap", "w1": 40, "w2": 115, "w3": 50, "w4": 74, "prevTotal": 205, "total": 279}, {"team": "Alice in Wonhaaland", "manager": "Alice Fox", "w1": 50, "w2": 102, "w3": 51, "w4": 71, "prevTotal": 203, "total": 274}, {"team": "il Divino Codino", "manager": "Faisal Sharwani", "w1": 53, "w2": 91, "w3": 59, "w4": 81, "prevTotal": 203, "total": 284}, {"team": "Al Mattihad", "manager": "Matt Kabir Floyd", "w1": 45, "w2": 100, "w3": 56, "w4": 68, "prevTotal": 201, "total": 269}, {"team": "50 shades of O'Shea", "manager": "James Maloney", "w1": 72, "w2": 87, "w3": 42, "w4": 68, "prevTotal": 201, "total": 269}, {"team": "Stubbed Mitoma", "manager": "Janith A", "w1": 74, "w2": 76, "w3": 55, "w4": 96, "prevTotal": 201, "total": 293}, {"team": "Mind Over Mata", "manager": "James Price Farr", "w1": 44, "w2": 105, "w3": 47, "w4": 84, "prevTotal": 196, "total": 280}, {"team": "Sesko Meal Deal", "manager": "Rishi Sharma", "w1": 52, "w2": 109, "w3": 43, "w4": 78, "prevTotal": 196, "total": 274}, {"team": "The Heapsters", "manager": "Alice Heap", "w1": 40, "w2": 95, "w3": 58, "w4": 84, "prevTotal": 193, "total": 277}, {"team": "cobra", "manager": "Sebastien Fort", "w1": 58, "w2": 99, "w3": 40, "w4": 61, "prevTotal": 193, "total": 254}, {"team": "MightyO's", "manager": "Pip Smith", "w1": 41, "w2": 71, "w3": 77, "w4": 65, "prevTotal": 189, "total": 254}, {"team": "Josh's Janners", "manager": "Joshua Stephens", "w1": 52, "w2": 96, "w3": 36, "w4": 78, "prevTotal": 184, "total": 262}, {"team": "MoMane MoProblems", "manager": "Nish Afsar", "w1": 48, "w2": 94, "w3": 50, "w4": 72, "prevTotal": 184, "total": 256}, {"team": "FCSJW", "manager": "Arhaan Sharwani", "w1": 41, "w2": 95, "w3": 50, "w4": 64, "prevTotal": 182, "total": 246}, {"team": "Spysaints", "manager": "Brian Scholtz", "w1": 19, "w2": 78, "w3": 84, "w4": 43, "prevTotal": 181, "total": 224}, {"team": "Greeny's Goofs", "manager": "Justin Green", "w1": 51, "w2": 94, "w3": 33, "w4": 66, "prevTotal": 178, "total": 244}, {"team": "Haaland & da bois", "manager": "Sam Fraser", "w1": 50, "w2": 85, "w3": 39, "w4": 60, "prevTotal": 177, "total": 237}, {"team": "For Beto", "manager": "Emma Edwards", "w1": 35, "w2": 96, "w3": 42, "w4": 79, "prevTotal": 175, "total": 254}, {"team": "Everybody Wirtz", "manager": "Wayne Rowland", "w1": 49, "w2": 74, "w3": 48, "w4": 68, "prevTotal": 171, "total": 239}, {"team": "Gunner's Team", "manager": "Gunner Seven", "w1": 44, "w2": 59, "w3": 62, "w4": 65, "prevTotal": 165, "total": 230}, {"team": "Pending Moderation", "manager": "Mark Wooldridge", "w1": 62, "w2": 64, "w3": 45, "w4": 80, "prevTotal": 159, "total": 239}, {"team": "Tallulah's Team", "manager": "Tallulah Allen", "w1": 54, "w2": 64, "w3": 41, "w4": 56, "prevTotal": 158, "total": 214}, {"team": "BoomSakaLaca", "manager": "Marcus Frumkin", "w1": 52, "w2": 41, "w3": 35, "w4": 80, "prevTotal": 143, "total": 223}, {"team": "Pending Moderation", "manager": "Nenad Divac", "w1": null, "w2": null, "w3": 52, "w4": 31, "prevTotal": 102, "total": 133}];
+const data = raw.map(r=>({team:r.team, manager:r.manager, w1:r.w1, w2:r.w2, w3:r.w3, w4:r.w4, prevTotal:r.prevTotal, total:r.total}));
+
 data.sort((a,b)=>b.total-a.total);
 data.forEach((d,i)=>{ d.rank = (i>0 && data[i-1].total===d.total) ? data[i-1].rank : i+1; });
 
-const withPrev = data.filter(d=>d.w1!==null).slice();
-withPrev.sort((a,b)=>(b.total-b.w3)-(a.total-a.w3));
-withPrev.forEach((d,i)=>{ d.prevRank = (i>0 && (withPrev[i-1].total-withPrev[i-1].w3)===(d.total-d.w3)) ? withPrev[i-1].prevRank : i+1; });
+const withPrev = data.filter(d=>d.prevTotal!==null).slice();
+withPrev.sort((a,b)=>b.prevTotal-a.prevTotal);
+withPrev.forEach((d,i)=>{ d.prevRank = (i>0 && withPrev[i-1].prevTotal===d.prevTotal) ? withPrev[i-1].prevRank : i+1; });
 data.forEach(d=>{ d.move = d.prevRank!==undefined ? d.prevRank-d.rank : null; });
 
 const leader = data[0];
@@ -294,9 +255,9 @@ document.getElementById('m-riser-pts').textContent = 'Up '+riser.move+' place'+(
 document.getElementById('m-faller-name').textContent = faller.manager;
 document.getElementById('m-faller-pts').textContent = 'Down '+Math.abs(faller.move)+' place'+(Math.abs(faller.move)===1?'':'s');
 
-const topGw3 = data.reduce((a,b)=>b.w3>a.w3?b:a);
-document.getElementById('m-top-name').textContent = topGw3.manager;
-document.getElementById('m-top-pts').textContent = topGw3.team+' \u2014 '+topGw3.w3+' pts';
+const topGwLatest = data.reduce((a,b)=>b.w4>a.w4?b:a);
+document.getElementById('m-top-name').textContent = topGwLatest.manager;
+document.getElementById('m-top-pts').textContent = topGwLatest.team+' \u2014 '+topGwLatest.w4+' pts';
 
 function moveLabel(d){
   if(d.move===null) return '<span class="move-flat">new</span>';
@@ -310,7 +271,7 @@ function renderTable(){
   const sortby = document.getElementById('sortby').value;
   let rows = data.filter(d=>d.team.toLowerCase().includes(q)||d.manager.toLowerCase().includes(q));
   if(sortby==='total') rows.sort((a,b)=>b.total-a.total);
-  else if(sortby==='w3') rows.sort((a,b)=>b.w3-a.w3);
+  else if(sortby==='w4') rows.sort((a,b)=>b.w4-a.w4);
   else if(sortby==='move') rows.sort((a,b)=>(b.move??-99)-(a.move??-99));
   else if(sortby==='name') rows.sort((a,b)=>a.manager.localeCompare(b.manager));
   else rows.sort((a,b)=>a.rank-b.rank);
@@ -318,7 +279,7 @@ function renderTable(){
   document.getElementById('tbody').innerHTML = rows.map(d=>
     '<tr><td>'+d.rank+'</td>'+
     '<td><span class="manager">'+d.manager+'</span><br/><span class="team">'+d.team+'</span></td>'+
-    '<td>'+(d.w1??'\u2013')+'</td><td>'+(d.w2??'\u2013')+'</td><td>'+d.w3+'</td>'+
+    '<td>'+(d.w1??'\u2013')+'</td><td>'+(d.w2??'\u2013')+'</td><td>'+(d.w3??'\u2013')+'</td><td>'+d.w4+'</td>'+
     '<td style="font-weight:600;">'+d.total+'</td><td>'+moveLabel(d)+'</td></tr>'
   ).join('');
 }
@@ -326,42 +287,42 @@ document.getElementById('search').addEventListener('input', renderTable);
 document.getElementById('sortby').addEventListener('change', renderTable);
 renderTable();
 
-const cove = ['#D4AF37','#4CAF6D','#5B8FE0','#E2695A','#C77DD1','#E0A93E','#5FC7C1','#B0C24A'];
+const cove = ['#B5556B','#6FB8D9','#D97B92','#4F8FB0','#8C6FA8','#D9724A','#7FA0C4','#C9A24A'];
 const top8 = data.slice(0,8);
 new Chart(document.getElementById('lineChart'), {
   type:'line',
   data:{
-    labels:['GW1','GW2','GW3'],
-    datasets: top8.map((d,i)=>({label:d.manager,data:[d.w1,d.w1+d.w2,d.total],borderColor:cove[i],backgroundColor:cove[i],borderWidth:2,pointRadius:3,fill:false,tension:0}))
+    labels:['GW1','GW2','GW3','GW4'],
+    datasets: top8.map((d,i)=>({label:d.manager,data:[d.w1,d.w1+d.w2,d.prevTotal,d.total],borderColor:cove[i],backgroundColor:cove[i],borderWidth:2,pointRadius:3,fill:false,tension:0}))
   },
   options:{
     responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:true,position:'bottom',labels:{color:'#9DAFA0',boxWidth:10,font:{size:11}}}},
+    plugins:{legend:{display:true,position:'bottom',labels:{color:'#9FB0C8',boxWidth:10,font:{size:11}}}},
     scales:{
-      y:{grid:{color:'rgba(241,239,228,0.08)'},ticks:{color:'#9DAFA0'}},
-      x:{grid:{display:false},ticks:{color:'#9DAFA0'}}
+      y:{grid:{color:'rgba(241,239,228,0.08)'},ticks:{color:'#9FB0C8'}},
+      x:{grid:{display:false},ticks:{color:'#9FB0C8'}}
     }
   }
 });
 
-const gw3sorted = data.slice().sort((a,b)=>b.w3-a.w3).slice(0,15);
+const gwSorted = data.slice().sort((a,b)=>b.w4-a.w4).slice(0,15);
 new Chart(document.getElementById('barChart'), {
   type:'bar',
-  data:{labels:gw3sorted.map(d=>d.manager),datasets:[{data:gw3sorted.map(d=>d.w3),backgroundColor:'#4CAF6D',borderRadius:4,maxBarThickness:20}]},
+  data:{labels:gwSorted.map(d=>d.manager),datasets:[{data:gwSorted.map(d=>d.w4),backgroundColor:'#6FB8D9',borderRadius:4,maxBarThickness:20}]},
   options:{
     indexAxis:'y',responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:false}},
     scales:{
-      x:{grid:{color:'rgba(241,239,228,0.08)'},ticks:{color:'#9DAFA0'}},
-      y:{grid:{display:false},ticks:{color:'#9DAFA0'}}
+      x:{grid:{color:'rgba(241,239,228,0.08)'},ticks:{color:'#9FB0C8'}},
+      y:{grid:{display:false},ticks:{color:'#9FB0C8'}}
     }
   }
 });
 
-// Monthly prizes: only weeks played so far fall in Aug/Sept.
+// Monthly prizes: GW1-4 all fall within Aug/Sept window so far.
 let bestAugSept = null;
 data.forEach(d=>{
-  [['GW1',d.w1],['GW2',d.w2],['GW3',d.w3]].forEach(([gw,score])=>{
+  [['GW1',d.w1],['GW2',d.w2],['GW3',d.w3],['GW4',d.w4]].forEach(([gw,score])=>{
     if(score!=null && (bestAugSept===null || score>bestAugSept.score)){
       bestAugSept = {manager:d.manager, team:d.team, score, gw};
     }
