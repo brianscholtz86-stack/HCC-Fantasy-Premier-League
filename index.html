@@ -71,6 +71,10 @@
     border-bottom:1px solid var(--line-strong);
   }
   thead th:nth-child(1),thead th:nth-child(2){text-align:left;}
+  thead th.sortable{cursor:pointer;user-select:none;white-space:nowrap;}
+  thead th.sortable:hover{color:var(--text);}
+  thead th.sortable.active{color:var(--rose-bright);}
+  thead th .arrow{display:inline-block;width:10px;font-size:10px;margin-left:2px;}
   tbody td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);}
   tbody td:nth-child(1),tbody td:nth-child(2){text-align:left;}
   tbody tr:hover{background:var(--surface-alt);}
@@ -129,7 +133,7 @@
 
   <section id="standings-section">
     <h2>Current standings</h2>
-    <div class="sub">Search and sort to find your team &middot; scroll for the full table</div>
+    <div class="sub">Search to find your team &middot; click a column header to sort by that gameweek</div>
 
     <div class="metrics">
       <div class="metric"><div class="label">League leader</div><div class="value" id="m-leader-name"></div><div class="sub" id="m-leader-pts"></div></div>
@@ -140,20 +144,20 @@
 
     <div class="controls">
       <input id="search" type="text" placeholder="Search team or manager..." />
-      <select id="sortby">
-        <option value="rank">Sort: rank</option>
-        <option value="total">Sort: total points</option>
-        <option value="w4">Sort: GW4 score</option>
-        <option value="move">Sort: movement</option>
-        <option value="name">Sort: manager A-Z</option>
-      </select>
     </div>
 
     <div class="table-scroll">
       <table>
         <thead>
-          <tr>
-            <th>#</th><th>Team / manager</th><th>GW1</th><th>GW2</th><th>GW3</th><th>GW4</th><th>Total</th><th>Move</th>
+          <tr id="headRow">
+            <th class="sortable" data-key="rank" data-default="asc">#<span class="arrow"></span></th>
+            <th class="sortable" data-key="name" data-default="asc">Team / manager<span class="arrow"></span></th>
+            <th class="sortable" data-key="w1" data-default="desc">GW1<span class="arrow"></span></th>
+            <th class="sortable" data-key="w2" data-default="desc">GW2<span class="arrow"></span></th>
+            <th class="sortable" data-key="w3" data-default="desc">GW3<span class="arrow"></span></th>
+            <th class="sortable" data-key="w4" data-default="desc">GW4<span class="arrow"></span></th>
+            <th class="sortable" data-key="total" data-default="desc">Total<span class="arrow"></span></th>
+            <th class="sortable" data-key="move" data-default="desc">Move<span class="arrow"></span></th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -243,21 +247,32 @@ withPrev.sort((a,b)=>b.prevTotal-a.prevTotal);
 withPrev.forEach((d,i)=>{ d.prevRank = (i>0 && withPrev[i-1].prevTotal===d.prevTotal) ? withPrev[i-1].prevRank : i+1; });
 data.forEach(d=>{ d.move = d.prevRank!==undefined ? d.prevRank-d.rank : null; });
 
-const leader = data[0];
-document.getElementById('m-leader-name').textContent = leader.manager;
-document.getElementById('m-leader-pts').textContent = leader.team+' \u2014 '+leader.total+' pts';
+function joinNames(list){
+  const names = list.map(d=>d.manager);
+  if(names.length===1) return names[0];
+  if(names.length===2) return names[0]+' & '+names[1];
+  return names.slice(0,-1).join(', ')+' & '+names[names.length-1];
+}
+
+const maxTotal = data[0].total;
+const leaders = data.filter(d=>d.total===maxTotal);
+document.getElementById('m-leader-name').innerHTML = joinNames(leaders);
+document.getElementById('m-leader-pts').innerHTML = leaders.map(d=>d.team).join(' & ')+' \u2014 '+maxTotal+' pts';
 
 const withMove = data.filter(d=>d.move!==null);
-const riser = withMove.reduce((a,b)=>b.move>a.move?b:a);
-const faller = withMove.reduce((a,b)=>b.move<a.move?b:a);
-document.getElementById('m-riser-name').textContent = riser.manager;
-document.getElementById('m-riser-pts').textContent = 'Up '+riser.move+' place'+(riser.move===1?'':'s');
-document.getElementById('m-faller-name').textContent = faller.manager;
-document.getElementById('m-faller-pts').textContent = 'Down '+Math.abs(faller.move)+' place'+(Math.abs(faller.move)===1?'':'s');
+const maxMove = Math.max(...withMove.map(d=>d.move));
+const minMove = Math.min(...withMove.map(d=>d.move));
+const risers = withMove.filter(d=>d.move===maxMove);
+const fallers = withMove.filter(d=>d.move===minMove);
+document.getElementById('m-riser-name').innerHTML = joinNames(risers);
+document.getElementById('m-riser-pts').textContent = 'Up '+maxMove+' place'+(maxMove===1?'':'s');
+document.getElementById('m-faller-name').innerHTML = joinNames(fallers);
+document.getElementById('m-faller-pts').textContent = 'Down '+Math.abs(minMove)+' place'+(Math.abs(minMove)===1?'':'s');
 
-const topGwLatest = data.reduce((a,b)=>b.w4>a.w4?b:a);
-document.getElementById('m-top-name').textContent = topGwLatest.manager;
-document.getElementById('m-top-pts').textContent = topGwLatest.team+' \u2014 '+topGwLatest.w4+' pts';
+const maxW4 = Math.max(...data.map(d=>d.w4));
+const topGwManagers = data.filter(d=>d.w4===maxW4);
+document.getElementById('m-top-name').innerHTML = joinNames(topGwManagers);
+document.getElementById('m-top-pts').innerHTML = topGwManagers.map(d=>d.team).join(' & ')+' \u2014 '+maxW4+' pts';
 
 function moveLabel(d){
   if(d.move===null) return '<span class="move-flat">new</span>';
@@ -266,15 +281,40 @@ function moveLabel(d){
   return '<span class="move-down">&#9660; '+Math.abs(d.move)+'</span>';
 }
 
+let sortState = { key: 'rank', dir: 'asc' };
+
+function sortRows(rows, key, dir){
+  const mult = dir==='asc' ? 1 : -1;
+  return rows.slice().sort((a,b)=>{
+    let av = key==='name' ? a.manager.toLowerCase() : a[key];
+    let bv = key==='name' ? b.manager.toLowerCase() : b[key];
+    const aNull = av===null || av===undefined;
+    const bNull = bv===null || bv===undefined;
+    if(aNull && bNull) return 0;
+    if(aNull) return 1;
+    if(bNull) return -1;
+    if(key==='name') return mult * (av<bv ? -1 : av>bv ? 1 : 0);
+    return mult * (av-bv);
+  });
+}
+
+function updateHeaderIndicators(){
+  document.querySelectorAll('#headRow th.sortable').forEach(th=>{
+    const arrow = th.querySelector('.arrow');
+    if(th.dataset.key===sortState.key){
+      th.classList.add('active');
+      arrow.textContent = sortState.dir==='asc' ? '\u25B2' : '\u25BC';
+    } else {
+      th.classList.remove('active');
+      arrow.textContent = '';
+    }
+  });
+}
+
 function renderTable(){
   const q = document.getElementById('search').value.toLowerCase();
-  const sortby = document.getElementById('sortby').value;
   let rows = data.filter(d=>d.team.toLowerCase().includes(q)||d.manager.toLowerCase().includes(q));
-  if(sortby==='total') rows.sort((a,b)=>b.total-a.total);
-  else if(sortby==='w4') rows.sort((a,b)=>b.w4-a.w4);
-  else if(sortby==='move') rows.sort((a,b)=>(b.move??-99)-(a.move??-99));
-  else if(sortby==='name') rows.sort((a,b)=>a.manager.localeCompare(b.manager));
-  else rows.sort((a,b)=>a.rank-b.rank);
+  rows = sortRows(rows, sortState.key, sortState.dir);
 
   document.getElementById('tbody').innerHTML = rows.map(d=>
     '<tr><td>'+d.rank+'</td>'+
@@ -282,9 +322,21 @@ function renderTable(){
     '<td>'+(d.w1??'\u2013')+'</td><td>'+(d.w2??'\u2013')+'</td><td>'+(d.w3??'\u2013')+'</td><td>'+d.w4+'</td>'+
     '<td style="font-weight:600;">'+d.total+'</td><td>'+moveLabel(d)+'</td></tr>'
   ).join('');
+  updateHeaderIndicators();
 }
 document.getElementById('search').addEventListener('input', renderTable);
-document.getElementById('sortby').addEventListener('change', renderTable);
+document.querySelectorAll('#headRow th.sortable').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const key = th.dataset.key;
+    if(sortState.key===key){
+      sortState.dir = sortState.dir==='asc' ? 'desc' : 'asc';
+    } else {
+      sortState.key = key;
+      sortState.dir = th.dataset.default;
+    }
+    renderTable();
+  });
+});
 renderTable();
 
 const cove = ['#B5556B','#6FB8D9','#D97B92','#4F8FB0','#8C6FA8','#D9724A','#7FA0C4','#C9A24A'];
