@@ -128,7 +128,7 @@
         <h1>Mini-League Dashboard</h1>
       </div>
     </div>
-    <div class="season">Season 2025/26 &middot; Through Gameweek 4</div>
+    <div class="season">Season 2025/26 &middot; Through Gameweek 5</div>
   </header>
 
   <section id="standings-section">
@@ -139,7 +139,7 @@
       <div class="metric"><div class="label">League leader</div><div class="value" id="m-leader-name"></div><div class="sub" id="m-leader-pts"></div></div>
       <div class="metric"><div class="label">Biggest riser</div><div class="value" id="m-riser-name"></div><div class="sub up" id="m-riser-pts"></div></div>
       <div class="metric"><div class="label">Biggest faller</div><div class="value" id="m-faller-name"></div><div class="sub down" id="m-faller-pts"></div></div>
-      <div class="metric"><div class="label">Top GW4 score</div><div class="value" id="m-top-name"></div><div class="sub" id="m-top-pts"></div></div>
+      <div class="metric"><div class="label">Top GW5 score</div><div class="value" id="m-top-name"></div><div class="sub" id="m-top-pts"></div></div>
     </div>
 
     <div class="controls">
@@ -156,6 +156,7 @@
             <th class="sortable" data-key="w2" data-default="desc">GW2<span class="arrow"></span></th>
             <th class="sortable" data-key="w3" data-default="desc">GW3<span class="arrow"></span></th>
             <th class="sortable" data-key="w4" data-default="desc">GW4<span class="arrow"></span></th>
+            <th class="sortable" data-key="w5" data-default="desc">GW5<span class="arrow"></span></th>
             <th class="sortable" data-key="total" data-default="desc">Total<span class="arrow"></span></th>
             <th class="sortable" data-key="move" data-default="desc">Move<span class="arrow"></span></th>
           </tr>
@@ -166,12 +167,12 @@
 
     <div class="charts">
       <div class="chart-card">
-        <div class="title">Cumulative points &mdash; top 8 managers</div>
-        <div class="chart-holder"><canvas id="lineChart" role="img" aria-label="Line chart of cumulative points across gameweeks 1 to 4 for the top 8 managers"></canvas></div>
+        <div class="title">Weekly score &mdash; top 8 managers</div>
+        <div class="chart-holder"><canvas id="lineChart" role="img" aria-label="Line chart of weekly gameweek scores across gameweeks 1 to 5 for the top 8 managers, showing form and volatility"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="title">Gameweek 4 scores &mdash; top 15</div>
-        <div class="chart-holder tall"><canvas id="barChart" role="img" aria-label="Horizontal bar chart of top 15 gameweek 4 scores"></canvas></div>
+        <div class="title">Gameweek 5 scores &mdash; top 15</div>
+        <div class="chart-holder tall"><canvas id="barChart" role="img" aria-label="Horizontal bar chart of top 15 gameweek 5 scores"></canvas></div>
       </div>
     </div>
   </section>
@@ -236,7 +237,7 @@
 </div>
 
 <script>
-const raw = [{"team": "Not Tzoday FC", "manager": "Kit Winder", "w1": 70, "w2": 109, "w3": 66, "w4": 94, "prevTotal": 245, "total": 335}, {"team": "Kapsannovasaurus_Rex", "manager": "Kapil Vaidyanathan", "w1": 55, "w2": 131, "w3": 57, "w4": 84, "prevTotal": 243, "total": 327}, {"team": "The ball boys", "manager": "Arya Etebarian", "w1": 66, "w2": 120, "w3": 56, "w4": 93, "prevTotal": 242, "total": 335}, {"team": "for wirtz", "manager": "siân culley", "w1": 62, "w2": 123, "w3": 55, "w4": 88, "prevTotal": 240, "total": 328}, {"team": "The Dominik Effect", "manager": "Aettan Goel", "w1": 72, "w2": 92, "w3": 67, "w4": 60, "prevTotal": 231, "total": 291}, {"team": "Gyok won", "manager": "Josh Bassett", "w1": 61, "w2": 104, "w3": 66, "w4": 76, "prevTotal": 231, "total": 307}, {"team": "Los Porros Hermanos", "manager": "Dev Nair", "w1": 66, "w2": 103, "w3": 62, "w4": 70, "prevTotal": 231, "total": 301}, {"team": "PiratesofthePavilion", "manager": "Aayush Goel", "w1": 70, "w2": 97, "w3": 63, "w4": 83, "prevTotal": 230, "total": 313}, {"team": "Mileys XI", "manager": "richard thirkeld", "w1": 69, "w2": 112, "w3": 49, "w4": 94, "prevTotal": 230, "total": 324}, {"team": "Ødegaardians Galaxy", "manager": "Angus Whiteside", "w1": 71, "w2": 119, "w3": 37, "w4": 98, "prevTotal": 227, "total": 325}, {"team": "Inter Row Z", "manager": "Alex Bush", "w1": 82, "w2": 96, "w3": 49, "w4": 70, "prevTotal": 227, "total": 297}, {"team": "Drop Djed Gorgeous", "manager": "Andy Collier", "w1": 56, "w2": 116, "w3": 49, "w4": 95, "prevTotal": 221, "total": 316}, {"team": "diego 4naan", "manager": "Karan Gour", "w1": 65, "w2": 98, "w3": 55, "w4": 94, "prevTotal": 218, "total": 312}, {"team": "winnersaregrinners", "manager": "Shaun Hill", "w1": 63, "w2": 90, "w3": 63, "w4": 86, "prevTotal": 216, "total": 302}, {"team": "Madeline's Team", "manager": "Madeline Silton", "w1": 46, "w2": 108, "w3": 53, "w4": 79, "prevTotal": 215, "total": 294}, {"team": "Ellie's Team", "manager": "Ellie Tack", "w1": 64, "w2": 107, "w3": 41, "w4": 90, "prevTotal": 212, "total": 302}, {"team": "Leighthal Weapon", "manager": "Leigh Wooldridge", "w1": 49, "w2": 109, "w3": 54, "w4": 81, "prevTotal": 212, "total": 293}, {"team": "BOBBY AFC", "manager": "GUGENHEIM Edouard", "w1": 53, "w2": 108, "w3": 46, "w4": 60, "prevTotal": 208, "total": 268}, {"team": "The Broncbull Reds", "manager": "steve jarvis", "w1": 52, "w2": 109, "w3": 47, "w4": 64, "prevTotal": 208, "total": 272}, {"team": "Championship Hammers", "manager": "George Dynan", "w1": 56, "w2": 97, "w3": 54, "w4": 76, "prevTotal": 207, "total": 283}, {"team": "Rutter Woke Nonsense", "manager": "Andrew Thomas", "w1": 69, "w2": 97, "w3": 39, "w4": 60, "prevTotal": 205, "total": 257}, {"team": "William's Wanderers", "manager": "William Enticknap", "w1": 40, "w2": 115, "w3": 50, "w4": 74, "prevTotal": 205, "total": 279}, {"team": "Alice in Wonhaaland", "manager": "Alice Fox", "w1": 50, "w2": 102, "w3": 51, "w4": 71, "prevTotal": 203, "total": 274}, {"team": "il Divino Codino", "manager": "Faisal Sharwani", "w1": 53, "w2": 91, "w3": 59, "w4": 81, "prevTotal": 203, "total": 284}, {"team": "Al Mattihad", "manager": "Matt Kabir Floyd", "w1": 45, "w2": 100, "w3": 56, "w4": 68, "prevTotal": 201, "total": 269}, {"team": "50 shades of O'Shea", "manager": "James Maloney", "w1": 72, "w2": 87, "w3": 42, "w4": 68, "prevTotal": 201, "total": 269}, {"team": "Stubbed Mitoma", "manager": "Janith A", "w1": 74, "w2": 76, "w3": 55, "w4": 96, "prevTotal": 201, "total": 293}, {"team": "Mind Over Mata", "manager": "James Price Farr", "w1": 44, "w2": 105, "w3": 47, "w4": 84, "prevTotal": 196, "total": 280}, {"team": "Sesko Meal Deal", "manager": "Rishi Sharma", "w1": 52, "w2": 109, "w3": 43, "w4": 78, "prevTotal": 196, "total": 274}, {"team": "The Heapsters", "manager": "Alice Heap", "w1": 40, "w2": 95, "w3": 58, "w4": 84, "prevTotal": 193, "total": 277}, {"team": "cobra", "manager": "Sebastien Fort", "w1": 58, "w2": 99, "w3": 40, "w4": 61, "prevTotal": 193, "total": 254}, {"team": "MightyO's", "manager": "Pip Smith", "w1": 41, "w2": 71, "w3": 77, "w4": 65, "prevTotal": 189, "total": 254}, {"team": "Josh's Janners", "manager": "Joshua Stephens", "w1": 52, "w2": 96, "w3": 36, "w4": 78, "prevTotal": 184, "total": 262}, {"team": "MoMane MoProblems", "manager": "Nish Afsar", "w1": 48, "w2": 94, "w3": 50, "w4": 72, "prevTotal": 184, "total": 256}, {"team": "FCSJW", "manager": "Arhaan Sharwani", "w1": 41, "w2": 95, "w3": 50, "w4": 64, "prevTotal": 182, "total": 246}, {"team": "Spysaints", "manager": "Brian Scholtz", "w1": 19, "w2": 78, "w3": 84, "w4": 43, "prevTotal": 181, "total": 224}, {"team": "Greeny's Goofs", "manager": "Justin Green", "w1": 51, "w2": 94, "w3": 33, "w4": 66, "prevTotal": 178, "total": 244}, {"team": "Haaland & da bois", "manager": "Sam Fraser", "w1": 50, "w2": 85, "w3": 39, "w4": 60, "prevTotal": 177, "total": 237}, {"team": "For Beto", "manager": "Emma Edwards", "w1": 35, "w2": 96, "w3": 42, "w4": 79, "prevTotal": 175, "total": 254}, {"team": "Everybody Wirtz", "manager": "Wayne Rowland", "w1": 49, "w2": 74, "w3": 48, "w4": 68, "prevTotal": 171, "total": 239}, {"team": "Gunner's Team", "manager": "Gunner Seven", "w1": 44, "w2": 59, "w3": 62, "w4": 65, "prevTotal": 165, "total": 230}, {"team": "Pending Moderation", "manager": "Mark Wooldridge", "w1": 62, "w2": 64, "w3": 45, "w4": 80, "prevTotal": 159, "total": 239}, {"team": "Tallulah's Team", "manager": "Tallulah Allen", "w1": 54, "w2": 64, "w3": 41, "w4": 56, "prevTotal": 158, "total": 214}, {"team": "BoomSakaLaca", "manager": "Marcus Frumkin", "w1": 52, "w2": 41, "w3": 35, "w4": 80, "prevTotal": 143, "total": 223}, {"team": "Pending Moderation", "manager": "Nenad Divac", "w1": null, "w2": null, "w3": 52, "w4": 31, "prevTotal": 102, "total": 133}];
+const raw = [{"team": "Not Tzoday FC", "manager": "Kit Winder", "w1": 70, "w2": 109, "w3": 66, "w4": 94, "w5": 33, "gw3Total": 245, "gw4Total": 335, "prevTotal": 335, "total": 368}, {"team": "Kapsannovasaurus_Rex", "manager": "Kapil Vaidyanathan", "w1": 55, "w2": 131, "w3": 57, "w4": 84, "w5": 34, "gw3Total": 243, "gw4Total": 327, "prevTotal": 327, "total": 361}, {"team": "The ball boys", "manager": "Arya Etebarian", "w1": 66, "w2": 120, "w3": 56, "w4": 93, "w5": 53, "gw3Total": 242, "gw4Total": 335, "prevTotal": 335, "total": 388}, {"team": "for wirtz", "manager": "siân culley", "w1": 62, "w2": 123, "w3": 55, "w4": 88, "w5": 50, "gw3Total": 240, "gw4Total": 328, "prevTotal": 328, "total": 378}, {"team": "The Dominik Effect", "manager": "Aettan Goel", "w1": 72, "w2": 92, "w3": 67, "w4": 60, "w5": 61, "gw3Total": 231, "gw4Total": 291, "prevTotal": 291, "total": 352}, {"team": "Gyok won", "manager": "Josh Bassett", "w1": 61, "w2": 104, "w3": 66, "w4": 76, "w5": 41, "gw3Total": 231, "gw4Total": 307, "prevTotal": 307, "total": 348}, {"team": "Los Porros Hermanos", "manager": "Dev Nair", "w1": 66, "w2": 103, "w3": 62, "w4": 70, "w5": 40, "gw3Total": 231, "gw4Total": 301, "prevTotal": 301, "total": 341}, {"team": "PiratesofthePavilion", "manager": "Aayush Goel", "w1": 70, "w2": 97, "w3": 63, "w4": 83, "w5": 67, "gw3Total": 230, "gw4Total": 313, "prevTotal": 313, "total": 380}, {"team": "Mileys XI", "manager": "richard thirkeld", "w1": 69, "w2": 112, "w3": 49, "w4": 94, "w5": 53, "gw3Total": 230, "gw4Total": 324, "prevTotal": 324, "total": 377}, {"team": "Ødegaardians Galaxy", "manager": "Angus Whiteside", "w1": 71, "w2": 119, "w3": 37, "w4": 98, "w5": 31, "gw3Total": 227, "gw4Total": 325, "prevTotal": 325, "total": 356}, {"team": "Inter Row Z", "manager": "Alex Bush", "w1": 82, "w2": 96, "w3": 49, "w4": 70, "w5": 58, "gw3Total": 227, "gw4Total": 297, "prevTotal": 297, "total": 355}, {"team": "Drop Djed Gorgeous", "manager": "Andy Collier", "w1": 56, "w2": 116, "w3": 49, "w4": 95, "w5": 48, "gw3Total": 221, "gw4Total": 316, "prevTotal": 316, "total": 360}, {"team": "diego 4naan", "manager": "Karan Gour", "w1": 65, "w2": 98, "w3": 55, "w4": 94, "w5": 23, "gw3Total": 218, "gw4Total": 312, "prevTotal": 312, "total": 335}, {"team": "winnersaregrinners", "manager": "Shaun Hill", "w1": 63, "w2": 90, "w3": 63, "w4": 86, "w5": 56, "gw3Total": 216, "gw4Total": 302, "prevTotal": 302, "total": 358}, {"team": "Madeline's Team", "manager": "Madeline Silton", "w1": 46, "w2": 108, "w3": 53, "w4": 79, "w5": 49, "gw3Total": 215, "gw4Total": 294, "prevTotal": 294, "total": 343}, {"team": "Real Taco FC", "manager": "Ellie Tack", "w1": 64, "w2": 107, "w3": 41, "w4": 90, "w5": 42, "gw3Total": 212, "gw4Total": 302, "prevTotal": 302, "total": 344}, {"team": "Leighthal Weapon", "manager": "Leigh Wooldridge", "w1": 49, "w2": 109, "w3": 54, "w4": 81, "w5": 47, "gw3Total": 212, "gw4Total": 293, "prevTotal": 293, "total": 340}, {"team": "BOBBY AFC", "manager": "GUGENHEIM Edouard", "w1": 53, "w2": 108, "w3": 46, "w4": 60, "w5": 48, "gw3Total": 208, "gw4Total": 268, "prevTotal": 268, "total": 316}, {"team": "The Broncbull Reds", "manager": "steve jarvis", "w1": 52, "w2": 109, "w3": 47, "w4": 64, "w5": 62, "gw3Total": 208, "gw4Total": 272, "prevTotal": 272, "total": 334}, {"team": "Championship Hammers", "manager": "George Dynan", "w1": 56, "w2": 97, "w3": 54, "w4": 76, "w5": 39, "gw3Total": 207, "gw4Total": 283, "prevTotal": 283, "total": 322}, {"team": "Rutter Woke Nonsense", "manager": "Andrew Thomas", "w1": 69, "w2": 97, "w3": 39, "w4": 60, "w5": 45, "gw3Total": 205, "gw4Total": 257, "prevTotal": 257, "total": 302}, {"team": "William's Wanderers", "manager": "William Enticknap", "w1": 40, "w2": 115, "w3": 50, "w4": 74, "w5": 48, "gw3Total": 205, "gw4Total": 279, "prevTotal": 279, "total": 327}, {"team": "Alice in Wonhaaland", "manager": "Alice Fox", "w1": 50, "w2": 102, "w3": 51, "w4": 71, "w5": 26, "gw3Total": 203, "gw4Total": 274, "prevTotal": 274, "total": 300}, {"team": "il Divino Codino", "manager": "Faisal Sharwani", "w1": 53, "w2": 91, "w3": 59, "w4": 81, "w5": 45, "gw3Total": 203, "gw4Total": 284, "prevTotal": 284, "total": 329}, {"team": "Al Mattihad", "manager": "Matt Kabir Floyd", "w1": 45, "w2": 100, "w3": 56, "w4": 68, "w5": 41, "gw3Total": 201, "gw4Total": 269, "prevTotal": 269, "total": 310}, {"team": "50 shades of O'Shea", "manager": "James Maloney", "w1": 72, "w2": 87, "w3": 42, "w4": 68, "w5": 70, "gw3Total": 201, "gw4Total": 269, "prevTotal": 269, "total": 339}, {"team": "Stubbed Mitoma", "manager": "Janith A", "w1": 74, "w2": 76, "w3": 55, "w4": 96, "w5": 52, "gw3Total": 201, "gw4Total": 293, "prevTotal": 293, "total": 341}, {"team": "Mind Over Mata", "manager": "James Price Farr", "w1": 44, "w2": 105, "w3": 47, "w4": 84, "w5": 43, "gw3Total": 196, "gw4Total": 280, "prevTotal": 280, "total": 323}, {"team": "Sesko Meal Deal", "manager": "Rishi Sharma", "w1": 52, "w2": 109, "w3": 43, "w4": 78, "w5": 62, "gw3Total": 196, "gw4Total": 274, "prevTotal": 274, "total": 332}, {"team": "The Heapsters", "manager": "Alice Heap", "w1": 40, "w2": 95, "w3": 58, "w4": 84, "w5": 56, "gw3Total": 193, "gw4Total": 277, "prevTotal": 277, "total": 333}, {"team": "cobra", "manager": "Sebastien Fort", "w1": 58, "w2": 99, "w3": 40, "w4": 61, "w5": 40, "gw3Total": 193, "gw4Total": 254, "prevTotal": 254, "total": 294}, {"team": "MightyO's", "manager": "Pip Smith", "w1": 41, "w2": 71, "w3": 77, "w4": 65, "w5": 54, "gw3Total": 189, "gw4Total": 254, "prevTotal": 254, "total": 308}, {"team": "Josh's Janners", "manager": "Joshua Stephens", "w1": 52, "w2": 96, "w3": 36, "w4": 78, "w5": 42, "gw3Total": 184, "gw4Total": 262, "prevTotal": 262, "total": 304}, {"team": "MoMane MoProblems", "manager": "Nish Afsar", "w1": 48, "w2": 94, "w3": 50, "w4": 72, "w5": 40, "gw3Total": 184, "gw4Total": 256, "prevTotal": 256, "total": 296}, {"team": "FCSJW", "manager": "Arhaan Sharwani", "w1": 41, "w2": 95, "w3": 50, "w4": 64, "w5": 48, "gw3Total": 182, "gw4Total": 246, "prevTotal": 246, "total": 294}, {"team": "Spysaints", "manager": "Brian Scholtz", "w1": 19, "w2": 78, "w3": 84, "w4": 43, "w5": 49, "gw3Total": 181, "gw4Total": 224, "prevTotal": 224, "total": 273}, {"team": "Greeny's Goofs", "manager": "Justin Green", "w1": 51, "w2": 94, "w3": 33, "w4": 66, "w5": 33, "gw3Total": 178, "gw4Total": 244, "prevTotal": 244, "total": 277}, {"team": "Haaland & da bois", "manager": "Sam Fraser", "w1": 50, "w2": 85, "w3": 39, "w4": 60, "w5": 37, "gw3Total": 177, "gw4Total": 237, "prevTotal": 237, "total": 274}, {"team": "For Beto", "manager": "Emma Edwards", "w1": 35, "w2": 96, "w3": 42, "w4": 79, "w5": 56, "gw3Total": 175, "gw4Total": 254, "prevTotal": 254, "total": 310}, {"team": "Everybody Wirtz", "manager": "Wayne Rowland", "w1": 49, "w2": 74, "w3": 48, "w4": 68, "w5": 51, "gw3Total": 171, "gw4Total": 239, "prevTotal": 239, "total": 290}, {"team": "Gunner's Team", "manager": "Gunner Seven", "w1": 44, "w2": 59, "w3": 62, "w4": 65, "w5": 31, "gw3Total": 165, "gw4Total": 230, "prevTotal": 230, "total": 261}, {"team": "Pending Moderation", "manager": "Mark Wooldridge", "w1": 62, "w2": 64, "w3": 45, "w4": 80, "w5": 49, "gw3Total": 159, "gw4Total": 239, "prevTotal": 239, "total": 288}, {"team": "Tallulah's Team", "manager": "Tallulah Allen", "w1": 54, "w2": 64, "w3": 41, "w4": 56, "w5": 43, "gw3Total": 158, "gw4Total": 214, "prevTotal": 214, "total": 257}, {"team": "BoomSakaLaca", "manager": "Marcus Frumkin", "w1": 52, "w2": 41, "w3": 35, "w4": 80, "w5": 48, "gw3Total": 143, "gw4Total": 223, "prevTotal": 223, "total": 271}, {"team": "Pending Moderation", "manager": "Nenad Divac", "w1": null, "w2": null, "w3": 52, "w4": 31, "w5": 62, "gw3Total": 102, "gw4Total": 133, "prevTotal": 133, "total": 195}];
 const data = raw.map(r=>({team:r.team, manager:r.manager, w1:r.w1, w2:r.w2, w3:r.w3, w4:r.w4, prevTotal:r.prevTotal, total:r.total}));
 
 data.sort((a,b)=>b.total-a.total);
@@ -269,10 +270,10 @@ document.getElementById('m-riser-pts').textContent = 'Up '+maxMove+' place'+(max
 document.getElementById('m-faller-name').innerHTML = joinNames(fallers);
 document.getElementById('m-faller-pts').textContent = 'Down '+Math.abs(minMove)+' place'+(Math.abs(minMove)===1?'':'s');
 
-const maxW4 = Math.max(...data.map(d=>d.w4));
-const topGwManagers = data.filter(d=>d.w4===maxW4);
+const maxW5 = Math.max(...data.map(d=>d.w5));
+const topGwManagers = data.filter(d=>d.w5===maxW5);
 document.getElementById('m-top-name').innerHTML = joinNames(topGwManagers);
-document.getElementById('m-top-pts').innerHTML = topGwManagers.map(d=>d.team).join(' & ')+' \u2014 '+maxW4+' pts';
+document.getElementById('m-top-pts').innerHTML = topGwManagers.map(d=>d.team).join(' & ')+' \u2014 '+maxW5+' pts';
 
 function moveLabel(d){
   if(d.move===null) return '<span class="move-flat">new</span>';
@@ -319,7 +320,7 @@ function renderTable(){
   document.getElementById('tbody').innerHTML = rows.map(d=>
     '<tr><td>'+d.rank+'</td>'+
     '<td><span class="manager">'+d.manager+'</span><br/><span class="team">'+d.team+'</span></td>'+
-    '<td>'+(d.w1??'\u2013')+'</td><td>'+(d.w2??'\u2013')+'</td><td>'+(d.w3??'\u2013')+'</td><td>'+d.w4+'</td>'+
+    '<td>'+(d.w1??'\u2013')+'</td><td>'+(d.w2??'\u2013')+'</td><td>'+(d.w3??'\u2013')+'</td><td>'+(d.w4??'\u2013')+'</td><td>'+d.w5+'</td>'+
     '<td style="font-weight:600;">'+d.total+'</td><td>'+moveLabel(d)+'</td></tr>'
   ).join('');
   updateHeaderIndicators();
@@ -344,20 +345,20 @@ const top8 = data.slice(0,8);
 new Chart(document.getElementById('lineChart'), {
   type:'line',
   data:{
-    labels:['GW1','GW2','GW3','GW4'],
-    datasets: top8.map((d,i)=>({label:d.manager,data:[d.w1,d.w1+d.w2,d.prevTotal,d.total],borderColor:cove[i],backgroundColor:cove[i],borderWidth:2,pointRadius:3,fill:false,tension:0}))
+    labels:['GW1','GW2','GW3','GW4','GW5'],
+    datasets: top8.map((d,i)=>({label:d.manager,data:[d.w1,d.w2,d.w3,d.w4,d.w5],borderColor:cove[i],backgroundColor:cove[i],borderWidth:2,pointRadius:3,fill:false,tension:0.25}))
   },
   options:{
     responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:true,position:'bottom',labels:{color:'#9FB0C8',boxWidth:10,font:{size:11}}}},
     scales:{
-      y:{grid:{color:'rgba(241,239,228,0.08)'},ticks:{color:'#9FB0C8'}},
+      y:{title:{display:true,text:'Points that gameweek',color:'#9FB0C8',font:{size:11}},grid:{color:'rgba(241,239,228,0.08)'},ticks:{color:'#9FB0C8'}},
       x:{grid:{display:false},ticks:{color:'#9FB0C8'}}
     }
   }
 });
 
-const gwSorted = data.slice().sort((a,b)=>b.w4-a.w4).slice(0,15);
+const gwSorted = data.slice().sort((a,b)=>b.w5-a.w5).slice(0,15);
 new Chart(document.getElementById('barChart'), {
   type:'bar',
   data:{labels:gwSorted.map(d=>d.manager),datasets:[{data:gwSorted.map(d=>d.w4),backgroundColor:'#6FB8D9',borderRadius:4,maxBarThickness:20}]},
@@ -374,7 +375,7 @@ new Chart(document.getElementById('barChart'), {
 // Monthly prizes: GW1-4 all fall within Aug/Sept window so far.
 let bestAugSept = null;
 data.forEach(d=>{
-  [['GW1',d.w1],['GW2',d.w2],['GW3',d.w3],['GW4',d.w4]].forEach(([gw,score])=>{
+  [['GW1',d.w1],['GW2',d.w2],['GW3',d.w3],['GW4',d.w4],['GW5',d.w5]].forEach(([gw,score])=>{
     if(score!=null && (bestAugSept===null || score>bestAugSept.score)){
       bestAugSept = {manager:d.manager, team:d.team, score, gw};
     }
@@ -382,7 +383,7 @@ data.forEach(d=>{
 });
 
 const months = [
-  {label:'Aug / Sept', data:bestAugSept, leading:true},
+  {label:'Aug / Sept', data:bestAugSept, leading:false, final:true},
   {label:'October', data:null},
   {label:'November', data:null},
   {label:'December', data:null},
@@ -394,8 +395,9 @@ const months = [
 
 document.getElementById('prize-grid').innerHTML = months.map(m=>{
   if(m.data){
+    const badge = m.final ? '<div class="badge" style="background:var(--blue);">Final</div>' : (m.leading ? '<div class="badge">In progress</div>' : '');
     return '<div class="prize-card leading">'+
-      (m.leading?'<div class="badge">In progress</div>':'')+
+      badge+
       '<div class="month">'+m.label+'</div>'+
       '<div class="winner">'+m.data.manager+'</div>'+
       '<div class="pts">'+m.data.team+' \u2014 '+m.data.score+' pts ('+m.data.gw+')</div>'+
