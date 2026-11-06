@@ -389,7 +389,7 @@ new Chart(document.getElementById('barChart'), {
   }
 });
 
-// Monthly prizes: GW1-5 complete the Aug/Sept window; GW6 onward falls in October.
+// Monthly prizes: GW1-5 complete the Aug/Sept window; GW6-9 make up October (final); GW10 onward starts November.
 let bestAugSept = null;
 data.forEach(d=>{
   [['GW1',d.w1],['GW2',d.w2],['GW3',d.w3],['GW4',d.w4],['GW5',d.w5]].forEach(([gw,score])=>{
@@ -419,7 +419,7 @@ data.forEach(d=>{
 
 const months = [
   {label:'Aug / Sept', data:bestAugSept, leading:false, final:true, amount:'\u00a345.00'},
-  {label:'October', data:bestOctober, leading:true, amount:'\u00a330.00'},
+  {label:'October', data:bestOctober, leading:false, final:true, amount:'\u00a330.00'},
   {label:'November', data:null, amount:'\u00a330.00'},
   {label:'December', data:null, amount:'\u00a345.00'},
   {label:'January', data:null, amount:'\u00a340.00'},
